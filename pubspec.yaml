@@ -11,15 +11,28 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  cupertino_icons: ^1.0.6
   google_mobile_ads: ^2.4.0
+  cupertino_icons: ^1.0.2
+  flutter_launcher_icons: ^0.13.1
+  audioplayers: ^5.2.0
+  flutter_riverpod: ^2.4.5
+  flame: ^1.13.1
+  flame_audio: ^2.1.6
+  flame_forge2d: ^0.16.0+3
+  flame_tiled: ^1.18.2
+  firebase_core: ^2.25.3
+  cloud_firestore: ^4.15.3
+  intl: ^0.19.0
+  shared_preferences: ^2.0.6
+  firebase_auth: ^4.16.0
+  webview_flutter: ^4.4.4
+  animated_text_kit: ^4.2.2
+  rate_my_app: ^2.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  flutter_lints: ^3.0.0
+  flutter_lints: ^3.0.1
 
 flutter:
   uses-material-design: true

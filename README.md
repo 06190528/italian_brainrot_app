@@ -1,3 +1,6 @@
+注意点
+fvm flutter で操作する(flutter sdk のバージョン 3.35.4 を使用中)
+
 # italian_brainrot_app
 
 A new Flutter project.
