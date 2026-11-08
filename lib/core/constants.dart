@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// ガチャ1回に必要なコイン
 const int gatyaCost = 10;
 
@@ -13,8 +15,8 @@ const int normalGoalScore = 300;
 /// ゲーム画面の下に置く広告バナーの高さ
 const double bannerHeight = 50;
 
-/// 開発中は true(テスト用の広告IDを使う)
-const bool useTestAds = true;
+/// デバッグビルドでは、テスト用の広告IDを使う(リリースビルドは本番ID)
+const bool useTestAds = kDebugMode;
 
 /// ランキング(ハードモードのみ)。
 /// スコアの送信: Firestore REST(認証なし。セキュリティルールで守る。backend/firestore.rules)。

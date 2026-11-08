@@ -2,15 +2,16 @@ import 'dart:io';
 
 import '../constants.dart';
 
-/// 広告ユニットID。本番IDは、このアプリ用にAdMobで作ってから [prod*] に入れる。
-/// (元アプリ saibai_men_app の本番IDは流用しない)
+/// 広告ユニットID。
+/// 本番ID: AdMob の「イタリアンブレインロット大戦争」(Android / iOS)の広告ユニット(2026-11-08に画面で確認)。
+/// デバッグビルドは常にテスト広告(開発中に本番広告を誤クリックしないため)。リリースビルドだけ本番。
 class AdHelper {
-  static const String _prodBannerAndroid = '';
-  static const String _prodBannerIos = '';
-  static const String _prodRewardedAndroid = '';
-  static const String _prodRewardedIos = '';
+  static const String _prodBannerAndroid = 'ca-app-pub-2847746899486154/1453847465';
+  static const String _prodBannerIos = 'ca-app-pub-2847746899486154/2865672492';
+  static const String _prodRewardedAndroid = 'ca-app-pub-2847746899486154/9239509154';
+  static const String _prodRewardedIos = 'ca-app-pub-2847746899486154/2662987355';
 
-  static bool get _useTest => useTestAds || _prodBannerAndroid.isEmpty;
+  static bool get _useTest => useTestAds;
 
   static String get bannerAdUnitId {
     if (_useTest) {
