@@ -1,0 +1,13 @@
+{
+  "name": "ranking-job",
+  "private": true,
+  "type": "module",
+  "description": "Firestore の scores から、アプリが取得する ranking.json を作る(GitHub Actions で毎日実行)",
+  "scripts": {
+    "build": "node build_ranking.mjs out/ranking.json",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0"
+  }
+}

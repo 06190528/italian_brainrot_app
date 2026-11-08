@@ -1,0 +1,64 @@
+name: ranking
+
+# 毎日1回(日本時間 03:17)、Firestore のスコアから ranking.json を作り、
+# ranking-data ブランチに公開する。アプリはこの JSON を HTTPS で取得する。
+# 公開リポジトリの GitHub Actions は無料。Cloud Scheduler / Cloud Functions(課金設定が必要)は使わない。
+on:
+  schedule:
+    - cron: '17 18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ranking
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+    steps:
+      - name: サービスアカウントの設定を確認
+        if: ${{ env.SA_JSON == '' }}
+        run: |
+          echo "::error::Secret FIREBASE_SERVICE_ACCOUNT が未設定です(backend/setup_ci.sh を参照)"
+          exit 1
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/ranking/package-lock.json
+
+      - name: 依存を入れる
+        working-directory: backend/ranking
+        run: npm ci
+
+      - name: テスト
+        working-directory: backend/ranking
+        run: npm test
+
+      - name: ranking.json を作る
+        working-directory: backend/ranking
+        run: |
+          umask 077
+          printf '%s' "$SA_JSON" > "$RUNNER_TEMP/sa.json"
+          GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json" node build_ranking.mjs "$RUNNER_TEMP/out/ranking.json"
+          rm -f "$RUNNER_TEMP/sa.json"
+
+      - name: ranking-data ブランチに公開(履歴は1コミットだけ残す)
+        run: |
+          set -e
+          cd "$RUNNER_TEMP/out"
+          git init -q -b ranking-data
+          git config user.name "ranking-bot"
+          git config user.email "ranking-bot@users.noreply.github.com"
+          git add ranking.json
+          git commit -q -m "ranking: $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ranking-data
