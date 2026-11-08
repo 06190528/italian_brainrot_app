@@ -40,8 +40,8 @@
    "rarity": 1,
    "sheet": "characters/c003.png",
    "cols": 6,
-   "rows": 4,
-   "frames": 22,
+   "rows": 2,
+   "frames": 12,
    "stepTime": 0.1
   },
   {
@@ -205,8 +205,8 @@
    "rarity": 2,
    "sheet": "characters/c018.png",
    "cols": 6,
-   "rows": 4,
-   "frames": 24,
+   "rows": 2,
+   "frames": 12,
    "stepTime": 0.1
   },
   {
@@ -260,8 +260,8 @@
    "rarity": 3,
    "sheet": "characters/c023.png",
    "cols": 6,
-   "rows": 4,
-   "frames": 23,
+   "rows": 2,
+   "frames": 12,
    "stepTime": 0.1
   },
   {
