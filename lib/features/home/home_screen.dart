@@ -45,7 +45,7 @@ class HomeScreen extends ConsumerWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 12),
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.55),
+                  color: Colors.white.withValues(alpha: 0.55),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: GridView.builder(

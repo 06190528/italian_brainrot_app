@@ -75,6 +75,10 @@ class BrainrotGame extends FlameGame with PanDetector {
   double _timer = 0;
   bool _over = false;
 
+  /// テスト用: false にすると、敵が自動で出ない。
+  @visibleForTesting
+  bool autoSpawn = true;
+
   int get _speedStepEvery => mode == GameMode.normal ? 20 : 30;
   int get feverNeeded => mode == GameMode.normal ? 20 : 50;
 
@@ -88,6 +92,13 @@ class BrainrotGame extends FlameGame with PanDetector {
     await add(player);
     player.position = size / 2;
     _initDifficulty();
+    debugInstance = this;
+  }
+
+  @override
+  void onRemove() {
+    if (identical(debugInstance, this)) debugInstance = null;
+    super.onRemove();
   }
 
   void _initDifficulty() {
@@ -156,7 +167,7 @@ class BrainrotGame extends FlameGame with PanDetector {
   @override
   void update(double dt) {
     super.update(dt);
-    if (!session.active.value || _over) return;
+    if (!session.active.value || _over || !autoSpawn) return;
     _timer += dt;
     if (_timer >= spawnInterval) {
       _timer = 0;
@@ -188,10 +199,25 @@ class BrainrotGame extends FlameGame with PanDetector {
         pos = Vector2(size.x, _rng.nextDouble() * size.y);
         dir = Dir.left;
     }
+    _spawn(kind, pos, dir);
+  }
+
+  void _spawn(int kind, Vector2 pos, Dir dir) {
     final e = _Enemy(characters[kind], dir, enemySpeed)..position = pos;
     enemies.add(e);
     add(e);
   }
+
+  /// テスト用: 決まった位置・向きに敵を出す。
+  @visibleForTesting
+  static BrainrotGame? debugInstance;
+
+  @visibleForTesting
+  void debugSpawnEnemy(Vector2 pos, Dir dir, {int? kind}) =>
+      _spawn(kind ?? (playerId == 0 ? 1 : 0), pos, dir);
+
+  @visibleForTesting
+  Vector2 get debugPlayerPosition => player.position.clone();
 
   void _addItem() {
     final it = _Item(enemySpeed * 0.5)..position = Vector2(_rng.nextDouble() * size.x, 0);

@@ -33,7 +33,7 @@ class RankingScreen extends ConsumerWidget {
             Expanded(
               child: Container(
                 margin: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(16)),
+                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.9), borderRadius: BorderRadius.circular(16)),
                 child: list.isEmpty
                     ? Center(child: Text(S.noRecords, style: const TextStyle(fontSize: 18, color: Colors.black)))
                     : ListView.builder(
