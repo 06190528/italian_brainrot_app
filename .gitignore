@@ -52,3 +52,6 @@ app.*.map.json
 # node
 node_modules/
 backend/ranking/out/
+
+# FVM(リンク先が環境ごとに違うため追跡しない。Flutterは ~/fvm/versions/3.35.4 を使う)
+.fvm/
