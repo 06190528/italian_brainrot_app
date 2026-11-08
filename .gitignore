@@ -43,3 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# raw asset sources (large, license-tracked separately)
+/asset_sources/*
+!/asset_sources/SOURCES.md
+!/asset_sources/characters.csv
