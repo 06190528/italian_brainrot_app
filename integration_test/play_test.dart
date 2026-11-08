@@ -6,6 +6,8 @@ import 'package:italian_brainrot_app/app/app.dart';
 import 'package:italian_brainrot_app/data/user_data.dart';
 import 'package:italian_brainrot_app/features/game/brainrot_game.dart';
 
+import 'fakes.dart';
+
 /// ハードモードを、敵を避けるボットで長めに遊ぶ(クラッシュ・フィーバー・ポーズの確認)。
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +18,8 @@ void main() {
       current: 3,
       records: [ScoreRecord('t', 300, 1, DateTime(2026, 11, 8))],
     );
-    await tester.pumpWidget(await buildApp(initialUser: user));
+    final fake = FakeRankingTransport();
+    await tester.pumpWidget(await buildApp(initialUser: user, overrides: [fakeRanking(fake)]));
     // 画像の読み込み(エンジン側の非同期処理)は、pump では進まない。実時間で待つ。
     await tester.runAsync(() => Future<void>.delayed(const Duration(seconds: 2)));
     await tester.pump(const Duration(milliseconds: 500));
