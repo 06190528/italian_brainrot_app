@@ -167,7 +167,7 @@ class BrainrotGame extends FlameGame with PanDetector {
   @override
   void update(double dt) {
     super.update(dt);
-    if (!session.active.value || _over || !autoSpawn) return;
+    if (dt == 0 || !session.active.value || _over || !autoSpawn) return;
     _timer += dt;
     if (_timer >= spawnInterval) {
       _timer = 0;
@@ -378,7 +378,8 @@ class _Player extends SpriteAnimationComponent with HasGameReference<BrainrotGam
   @override
   void update(double dt) {
     super.update(dt);
-    if (!game.session.active.value) return;
+    // GameWidget は再描画の組み立て中に update(0) を呼ぶ。そこでは何も進めない(状態を変えるとエラーになる)
+    if (dt == 0 || !game.session.active.value) return;
     final v = _vec(direction) * (speed * dt);
     position.add(v);
     final half = size.x / 2;
@@ -413,7 +414,7 @@ class _Enemy extends SpriteAnimationComponent with HasGameReference<BrainrotGame
   @override
   void update(double dt) {
     super.update(dt);
-    if (!game.session.active.value) return;
+    if (dt == 0 || !game.session.active.value) return; // update(0) では進めない(上と同じ理由)
     final p = game.player;
     final hit = (size.x + p.size.x) * 0.3;
     if (position.distanceTo(p.position) <= hit) {
@@ -445,7 +446,7 @@ class _Item extends PositionComponent with HasGameReference<BrainrotGame> {
   void update(double dt) {
     super.update(dt);
     _t += dt;
-    if (!game.session.active.value) return;
+    if (dt == 0 || !game.session.active.value) return; // update(0) では進めない
     position.y += speed * dt;
     if (position.distanceTo(game.player.position) <= (size.x + game.player.size.x) * 0.35) {
       game._itemTaken(this);
