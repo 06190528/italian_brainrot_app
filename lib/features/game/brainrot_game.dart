@@ -182,22 +182,25 @@ class BrainrotGame extends FlameGame with PanDetector {
     while (kind == playerId && guard++ < 20) {
       kind = _rng.nextInt(enemyKinds);
     }
-    final side = _rng.nextInt(4);
+    // 出現位置は、プレイヤーから離す(真横に出て、避けられずに即死するのを防ぐ)
     late Vector2 pos;
     late Dir dir;
-    switch (side) {
-      case 0:
-        pos = Vector2(_rng.nextDouble() * size.x, 0);
-        dir = Dir.down;
-      case 1:
-        pos = Vector2(_rng.nextDouble() * size.x, size.y);
-        dir = Dir.up;
-      case 2:
-        pos = Vector2(0, _rng.nextDouble() * size.y);
-        dir = Dir.right;
-      default:
-        pos = Vector2(size.x, _rng.nextDouble() * size.y);
-        dir = Dir.left;
+    for (var tries = 0; tries < 8; tries++) {
+      switch (_rng.nextInt(4)) {
+        case 0:
+          pos = Vector2(_rng.nextDouble() * size.x, 0);
+          dir = Dir.down;
+        case 1:
+          pos = Vector2(_rng.nextDouble() * size.x, size.y);
+          dir = Dir.up;
+        case 2:
+          pos = Vector2(0, _rng.nextDouble() * size.y);
+          dir = Dir.right;
+        default:
+          pos = Vector2(size.x, _rng.nextDouble() * size.y);
+          dir = Dir.left;
+      }
+      if (pos.distanceTo(player.position) >= size.y / 5) break;
     }
     _spawn(kind, pos, dir);
   }
@@ -362,7 +365,9 @@ class _Player extends SpriteAnimationComponent with HasGameReference<BrainrotGam
   @override
   Future<void> onLoad() async {
     animation = await def.loadAnimation();
-    size = Vector2.all(game.size.y / 13);
+    final g = findGame(); // 読み込み中に外されたら、何もしない
+    if (g == null) return;
+    size = Vector2.all(g.size.y / 13);
   }
 
   @override
@@ -392,7 +397,7 @@ Vector2 _vec(Dir d) => switch (d) {
 
 class _Enemy extends SpriteAnimationComponent with HasGameReference<BrainrotGame> {
   final CharacterDef def;
-  final Dir dir;
+  final Dir dir; // 進行方向(シミュレーションからも読む)
   double speed;
 
   _Enemy(this.def, this.dir, this.speed) : super(anchor: Anchor.center, priority: 3);
@@ -400,7 +405,9 @@ class _Enemy extends SpriteAnimationComponent with HasGameReference<BrainrotGame
   @override
   Future<void> onLoad() async {
     animation = await def.loadAnimation();
-    size = Vector2.all(game.size.y / 15);
+    final g = findGame(); // 読み込み中に外されたら(ゲームオーバー・必殺技)、何もしない
+    if (g == null) return;
+    size = Vector2.all(g.size.y / 15);
   }
 
   @override
@@ -429,7 +436,9 @@ class _Item extends PositionComponent with HasGameReference<BrainrotGame> {
 
   @override
   Future<void> onLoad() async {
-    size = Vector2.all(game.size.y / 20);
+    final g = findGame();
+    if (g == null) return;
+    size = Vector2.all(g.size.y / 20);
   }
 
   @override
