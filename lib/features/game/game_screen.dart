@@ -7,6 +7,8 @@ import '../../core/ads/banner_ad_widget.dart';
 import '../../core/ads/reward_ad.dart';
 import '../../core/audio_service.dart';
 import '../../core/strings.dart';
+import '../../data/ranking_service.dart';
+import '../../core/constants.dart';
 import '../../core/widgets.dart';
 import 'brainrot_game.dart';
 
@@ -62,6 +64,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final coins = score ~/ 10;
     notifier.addCoins(coins);
     notifier.addRecord(widget.mode.id, score);
+    if (widget.mode.id == rankingMode) {
+      // ランキングへの送信は裏で行う(失敗しても、次にランキングを開いた時に再送する)
+      submitPendingRanking(
+        user: ref.read(userDataProvider),
+        service: ref.read(rankingServiceProvider),
+        notifier: notifier,
+      );
+    }
     AudioService.instance.stopBgm();
     if (clear) AudioService.instance.clear();
     if (!mounted) return;

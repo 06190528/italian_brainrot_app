@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/character.dart';
+import '../data/ranking_service.dart';
 import '../data/user_data.dart';
 
 /// main() で読み込んだ値を override して使う。
@@ -14,3 +15,5 @@ final userDataProvider = StateNotifierProvider<UserDataNotifier, UserData>((ref)
     ref.read(charactersProvider).length,
   );
 });
+
+final rankingServiceProvider = Provider<RankingService>((ref) => RankingService(HttpRankingTransport()));

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,6 +30,12 @@ class UserData {
   final bool soundOn;
   final List<ScoreRecord> records;
 
+  /// ランキング用の、端末ごとの乱数ID(32桁の16進)。末尾4桁だけが順位表のJSONに出る(自分の行の判別用)。
+  final String installId;
+
+  /// ランキングに送信済みのハードモードのベスト(0=未送信)。
+  final int submittedBest;
+
   const UserData({
     required this.name,
     required this.coin,
@@ -36,15 +43,23 @@ class UserData {
     required this.current,
     required this.soundOn,
     required this.records,
+    required this.installId,
+    this.submittedBest = 0,
   });
 
-  factory UserData.initial() => const UserData(
+  static String newInstallId() {
+    final r = Random.secure();
+    return List.generate(32, (_) => r.nextInt(16).toRadixString(16)).join();
+  }
+
+  factory UserData.initial() => UserData(
         name: 'Player',
         coin: startingCoins,
-        owned: {0},
+        owned: const {0},
         current: 0,
         soundOn: true,
-        records: [],
+        records: const [],
+        installId: newInstallId(),
       );
 
   int bestScore(int mode) => records
@@ -60,6 +75,7 @@ class UserData {
     int? current,
     bool? soundOn,
     List<ScoreRecord>? records,
+    int? submittedBest,
   }) =>
       UserData(
         name: name ?? this.name,
@@ -68,6 +84,8 @@ class UserData {
         current: current ?? this.current,
         soundOn: soundOn ?? this.soundOn,
         records: records ?? this.records,
+        installId: installId,
+        submittedBest: submittedBest ?? this.submittedBest,
       );
 
   Map<String, dynamic> toJson() => {
@@ -77,6 +95,8 @@ class UserData {
         'current': current,
         'soundOn': soundOn,
         'records': records.map((r) => r.toJson()).toList(),
+        'installId': installId,
+        'submittedBest': submittedBest,
       };
 
   factory UserData.fromJson(Map<String, dynamic> j) => UserData(
@@ -88,6 +108,8 @@ class UserData {
         records: ((j['records'] ?? []) as List)
             .map((e) => ScoreRecord.fromJson(e as Map<String, dynamic>))
             .toList(),
+        installId: (j['installId'] as String?) ?? newInstallId(),
+        submittedBest: (j['submittedBest'] ?? 0) as int,
       );
 }
 
@@ -143,6 +165,10 @@ class UserDataNotifier extends StateNotifier<UserData> {
 
   void select(int id) {
     if (state.owned.contains(id)) _set(state.copyWith(current: id));
+  }
+
+  void markSubmitted(int score) {
+    if (score > state.submittedBest) _set(state.copyWith(submittedBest: score));
   }
 
   void setName(String name) => _set(state.copyWith(name: name));

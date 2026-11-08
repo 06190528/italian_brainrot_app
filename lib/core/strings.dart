@@ -40,6 +40,12 @@ class S {
   static String get continueByAd => _t('広告を見てコンティニュー', 'Continue (watch ad)');
   static String get watchAdToContinue => _t('広告を見てコンティニューしますか?', 'Watch an ad to continue?');
   static String get ranking => _t('ランキング', 'Ranking');
+  static String get rankingNote => _t('毎日1回更新(あなたの記録は、すぐ反映)', 'Updated daily (your score is shown right away)');
+  static String rankingUpdated(String t) => _t('最終更新 $t', 'Updated $t');
+  static String rankOf(int rank, int total) => _t('あなたの順位: $rank位 / $total人', 'Your rank: #$rank of $total');
+  static String get rankingHardOnly => _t('ハードモードの記録でランキングに参加できます', 'Play Hard mode to join the ranking');
+  static String get rankingOffline => _t('順位表を取得できませんでした(引っぱって更新)', 'Could not load the ranking (pull to refresh)');
+  static String get you => _t('あなた', 'You');
   static String get noRecords => _t('まだ記録がありません', 'No records yet');
   static String get settings => _t('設定', 'Settings');
   static String get playerName => _t('なまえ', 'Name');

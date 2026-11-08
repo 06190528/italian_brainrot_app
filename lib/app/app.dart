@@ -28,7 +28,7 @@ class BrainrotApp extends StatelessWidget {
 }
 
 /// 起動時に必要なものを読み込んで、ルートのウィジェットを返す(テストからも使う)。
-Future<Widget> buildApp({UserData? initialUser}) async {
+Future<Widget> buildApp({UserData? initialUser, List<Override> overrides = const []}) async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   Flame.images.prefix = 'assets/images/';
@@ -43,6 +43,7 @@ Future<Widget> buildApp({UserData? initialUser}) async {
     overrides: [
       charactersProvider.overrideWithValue(chars),
       initialUserDataProvider.overrideWithValue(user),
+      ...overrides,
     ],
     child: const BrainrotApp(),
   );
