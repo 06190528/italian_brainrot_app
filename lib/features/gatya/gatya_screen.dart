@@ -113,19 +113,20 @@ class _CapsulePainter extends CustomPainter {
   void paint(Canvas canvas, Size s) {
     final c = s.center(Offset.zero);
     final r = s.width / 2;
-    final rect = Rect.fromCircle(center: c, radius: r);
+    // イタリア国旗の三色(緑・白・赤)を縦に並べて、円で切り抜く
     canvas.save();
-    canvas.clipRect(Rect.fromLTRB(0, 0, s.width, c.dy));
-    canvas.drawCircle(c, r, Paint()..color = const Color(0xFFE53935));
+    canvas.clipPath(Path()..addOval(Rect.fromCircle(center: c, radius: r)));
+    final w = s.width / 3;
+    canvas.drawRect(Rect.fromLTWH(0, 0, w, s.height), Paint()..color = const Color(0xFF2E9E4F));
+    canvas.drawRect(Rect.fromLTWH(w, 0, w, s.height), Paint()..color = Colors.white);
+    canvas.drawRect(Rect.fromLTWH(w * 2, 0, w, s.height), Paint()..color = const Color(0xFFD83A33));
     canvas.restore();
-    canvas.save();
-    canvas.clipRect(Rect.fromLTRB(0, c.dy, s.width, s.height));
-    canvas.drawCircle(c, r, Paint()..color = Colors.white);
-    canvas.restore();
-    canvas.drawCircle(c, r, Paint()..style = PaintingStyle.stroke..strokeWidth = 6..color = Colors.black87);
-    canvas.drawLine(Offset(0, c.dy), Offset(s.width, c.dy), Paint()..strokeWidth = 6..color = Colors.black87);
-    canvas.drawCircle(c + Offset(-r * 0.4, -r * 0.45), r * 0.14, Paint()..color = Colors.white70);
-    rect.hashCode;
+    final line = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 6
+      ..color = Colors.black87;
+    canvas.drawCircle(c, r, line);
+    canvas.drawCircle(c + Offset(-r * 0.45, -r * 0.5), r * 0.14, Paint()..color = Colors.white70);
   }
 
   @override
