@@ -1,0 +1,28 @@
+rules_version = '2';
+
+// ランキングのスコア置き場。
+// - アプリ(認証なし)は、自分の1件(ドキュメントID=端末ごとの乱数32桁)を作る・ベストを更新するだけ。
+// - 読み取りは全拒否(集計ジョブだけがサービスアカウントで読む。ルールの対象外)。
+// - スコアは下げられない。名前は1〜12文字。
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /scores/{id} {
+      allow read: if false;
+      allow delete: if false;
+      allow create: if isValidId(id) && isValidDoc();
+      allow update: if isValidId(id) && isValidDoc()
+                    && request.resource.data.score >= resource.data.score;
+    }
+
+    function isValidId(id) {
+      return id.matches('[0-9a-f]{32}');
+    }
+
+    function isValidDoc() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['name', 'score'])
+          && d.name is string && d.name.size() >= 1 && d.name.size() <= 12
+          && d.score is int && d.score >= 0 && d.score <= 100000;
+    }
+  }
+}
