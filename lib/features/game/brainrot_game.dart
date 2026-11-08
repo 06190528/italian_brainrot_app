@@ -269,7 +269,7 @@ class BrainrotGame extends FlameGame with PanDetector {
     }
     if (!session.fever.value && session.feverCount.value >= feverNeeded) {
       session.fever.value = true;
-      AudioService.instance.playBgm('fever_bgm.mp3', volume: 1.0);
+      AudioService.instance.playBgm(AudioService.bgmFever, volume: 0.7);
     }
   }
 
@@ -279,10 +279,11 @@ class BrainrotGame extends FlameGame with PanDetector {
     if (session.fever.value) {
       // フィーバー終了(爆発して、また最初から溜める)
       add(_Explosion(player.position.clone()));
+      AudioService.instance.hitSoft();
       AudioService.instance.explosion();
       session.fever.value = false;
       session.feverCount.value = 0;
-      AudioService.instance.playBgm('bgm.mp3');
+      AudioService.instance.playBgm(AudioService.bgmMain);
     } else {
       _finish(clear: false);
     }
@@ -318,6 +319,7 @@ class BrainrotGame extends FlameGame with PanDetector {
     if (!clear) {
       add(_Explosion(player.position.clone()));
       player.visible = false;
+      AudioService.instance.hit();
       AudioService.instance.explosion();
     }
     final s = session.score.value;

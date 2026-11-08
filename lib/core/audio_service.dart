@@ -40,10 +40,14 @@ class AudioService {
   // 名前つきの効果音(ファイル名の差し替えはここだけ)
   Future<void> explosion() => se('explosion.mp3');
   Future<void> clear() => se('game_clear.mp3');
-  Future<void> gatya() => se('gatyaSound.mp3');
-  Future<void> getCharacter() => se('getCharacter.mp3');
-  Future<void> coin() => se('getCoinSound.mp3');
-  Future<void> item() => se('getItemSound.mp3');
-  Future<void> special() => se('specialMove.mp3');
-  Future<void> hit() => se('goat_sounds1.mp3');
+  Future<void> gatya() => se('gatya.mp3');
+  Future<void> getCharacter() => se('get_character.mp3');
+  Future<void> coin() => se('get_coin.mp3');
+  Future<void> item() => se('get_item.mp3');
+  Future<void> special() => se('special_move.mp3');
+  Future<void> hit() => se('hit_1.mp3');
+  Future<void> hitSoft() => se('hit_2.mp3');
+
+  static const bgmMain = 'bgm_main.mp3';
+  static const bgmFever = 'bgm_fever.mp3';
 }

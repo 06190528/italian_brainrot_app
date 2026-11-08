@@ -54,7 +54,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   void _start() {
     setState(() => phase = _Phase.playing);
     game.start();
-    AudioService.instance.playBgm('bgm.mp3');
+    AudioService.instance.playBgm(AudioService.bgmMain);
   }
 
   void _finish(int score, {required bool clear}) {
@@ -101,7 +101,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       // 前回のゲームオーバーで貰ったコインを戻す(続きを遊ぶので、終了時に改めて貰う)
       ref.read(userDataProvider.notifier).spendCoins(earnedCoins.clamp(0, ref.read(userDataProvider).coin));
       game.continueGame();
-      AudioService.instance.playBgm('bgm.mp3');
+      AudioService.instance.playBgm(AudioService.bgmMain);
       if (mounted) setState(() => phase = _Phase.playing);
     });
     if (!shown && mounted) {
