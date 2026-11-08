@@ -1,30 +1,38 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:italian_brainrot_app/main.dart';
+import 'package:italian_brainrot_app/data/user_data.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  test('UserData: 保存形式の往復', () {
+    final d = UserData.initial().copyWith(coin: 33, owned: {0, 5}, current: 5);
+    final r = UserData.fromJson(d.toJson());
+    expect(r.coin, 33);
+    expect(r.owned, {0, 5});
+    expect(r.current, 5);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  test('UserDataNotifier: コインと解放', () async {
+    SharedPreferences.setMockInitialValues({});
+    final n = UserDataNotifier(UserDataStore(), UserData.initial(), 51);
+    expect(n.spendCoins(10), true);
+    expect(n.state.coin, 10);
+    expect(n.spendCoins(11), false);
+    expect(n.unlock(7), true);
+    expect(n.unlock(7), false); // ダブり
+    expect(n.state.coin, 15);
+    n.select(7);
+    expect(n.state.current, 7);
+    n.select(9); // 未所持は選べない
+    expect(n.state.current, 7);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  test('ハード解放はノーマル300点クリア後', () {
+    final n = UserDataNotifier(UserDataStore(), UserData.initial(), 51);
+    expect(n.state.hardUnlocked, false);
+    n.addRecord(1, 300);
+    expect(n.state.hardUnlocked, true);
   });
 }
