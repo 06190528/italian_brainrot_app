@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:italian_brainrot_app/app/app.dart';
+import 'package:italian_brainrot_app/core/constants.dart';
 import 'package:italian_brainrot_app/data/user_data.dart';
 
 import 'fakes.dart';
@@ -11,6 +12,7 @@ import 'fakes.dart';
 /// ランキング画面: 取得した順位表に、自分の記録が、あるべき位置に入る。
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  adsHiddenForTests = true;
 
   testWidgets('ランキング: 自分が圏内に挿入される・未送信のベストを送る', (tester) async {
     final top = [for (var i = 0; i < 12; i++) {'name': 'Rival${i + 1}', 'score': 200 - i * 15, 'tag': 'r${i.toString().padLeft(3, '0')}'}];

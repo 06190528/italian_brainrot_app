@@ -18,6 +18,9 @@ const double bannerHeight = 50;
 /// デバッグビルドでは、テスト用の広告IDを使う(リリースビルドは本番ID)
 const bool useTestAds = kDebugMode;
 
+/// テスト(ストア用スクショの撮影)で true にすると、バナー広告の枠ごと出さない。
+bool adsHiddenForTests = false;
+
 /// ランキング(ハードモードのみ)。
 /// スコアの送信: Firestore REST(認証なし。セキュリティルールで守る。backend/firestore.rules)。
 /// 順位表の取得: 毎日1回、GitHub Actions が作る JSON(ranking-data ブランチ。backend/)。

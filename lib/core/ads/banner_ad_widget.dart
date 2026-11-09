@@ -24,7 +24,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   }
 
   Future<void> _load() async {
-    if (!await AdsConsent.ready || !mounted) return;
+    if (adsHiddenForTests || !await AdsConsent.ready || !mounted) return;
     final ad = BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,
       size: AdSize.banner,
@@ -48,6 +48,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (adsHiddenForTests) return const SizedBox.shrink();
     return SizedBox(
       width: double.infinity,
       height: bannerHeight,

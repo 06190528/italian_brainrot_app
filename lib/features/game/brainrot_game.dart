@@ -350,6 +350,7 @@ class _Background extends Component with HasGameReference<BrainrotGame> {
   @override
   void render(Canvas canvas) {
     final s = game.size;
+    canvas.clipRect(Rect.fromLTWH(0, 0, s.x, s.y)); // 2枚目が、画面の外(ステータスバー・バナー広告の上)に描かれないように
     final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
     final paint = Paint()..filterQuality = FilterQuality.medium;
     canvas.drawImageRect(image, src, Rect.fromLTWH(0, _y, s.x, s.y), paint);

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:italian_brainrot_app/app/app.dart';
+import 'package:italian_brainrot_app/core/constants.dart';
 import 'package:italian_brainrot_app/data/user_data.dart';
 import 'package:italian_brainrot_app/features/game/brainrot_game.dart';
 
@@ -15,6 +16,7 @@ Future<void> settle(WidgetTester t) async {
 /// ホーム → ガチャ → ノーマルをプレイ(スワイプ・必殺技・結果) の通し確認。
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  adsHiddenForTests = true;
 
   testWidgets('通し: ガチャ→プレイ→結果', (tester) async {
     await tester.pumpWidget(await buildApp(initialUser: UserData.initial()));

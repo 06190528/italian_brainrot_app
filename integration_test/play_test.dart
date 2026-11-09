@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:italian_brainrot_app/app/app.dart';
+import 'package:italian_brainrot_app/core/constants.dart';
 import 'package:italian_brainrot_app/data/user_data.dart';
 import 'package:italian_brainrot_app/features/game/brainrot_game.dart';
 
@@ -11,6 +12,7 @@ import 'fakes.dart';
 /// ハードモードを、敵を避けるボットで長めに遊ぶ(クラッシュ・フィーバー・ポーズの確認)。
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  adsHiddenForTests = true;
 
   testWidgets('ハード: ボットで30秒プレイ・フィーバー・ポーズ', (tester) async {
     final user = UserData.initial().copyWith(
