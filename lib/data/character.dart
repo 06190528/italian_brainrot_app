@@ -48,7 +48,7 @@ class CharacterDef {
       image,
       SpriteAnimationData.sequenced(
         amount: frames,
-        amountPerRow: cols,
+        amountPerRow: cols > frames ? frames : cols, // コマ数より列が多いシートでも落ちないように
         stepTime: stepTime,
         textureSize: frameSize,
       ),

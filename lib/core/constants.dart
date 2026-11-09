@@ -25,3 +25,7 @@ const int rankingMode = 2;
 const String rankingProjectId = 'italian-brainrot-p3vkon';
 const String rankingJsonUrl =
     'https://raw.githubusercontent.com/06190528/italian_brainrot_app/ranking-data/ranking.json';
+
+/// 敵として出るキャラの種類の上限(先頭からこの数まで。並びは知名度順)。
+/// 画像は使うたびに読み込まれ、キャッシュされる。全110種が出るとメモリが重い(約2.4MB/種)ので制限する。
+const int maxEnemyKinds = 40;

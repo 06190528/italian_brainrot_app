@@ -106,10 +106,6 @@ class BrainrotGame extends FlameGame with PanDetector {
     enemySpeed = base;
     spawnInterval = mode == GameMode.normal ? 2.0 : 1.2;
     enemyKinds = min(3, characters.length);
-    // 自分より番号の大きい敵が出始めるように、最低でも自分の番号+1まで広げる
-    if (playerId >= enemyKinds && enemyKinds < characters.length - 1) {
-      enemyKinds = min(playerId + 1, characters.length - 1);
-    }
     player.speed = enemySpeed * 1.3;
   }
 
@@ -260,7 +256,7 @@ class BrainrotGame extends FlameGame with PanDetector {
       player.speed = enemySpeed * 1.3;
     } else if (s % 15 == 5) {
       _addItem();
-      if (enemyKinds < characters.length - 1) enemyKinds++;
+      if (enemyKinds < min(characters.length - 1, maxEnemyKinds)) enemyKinds++;
     }
     _afterScore();
   }
