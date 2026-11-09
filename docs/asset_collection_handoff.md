@@ -1,5 +1,7 @@
 # 引き継ぎ書: イタリアンブレインロット素材の調査・収集
 
+> **成果報告**: 収集結果・品質・問題点・次の作業は `docs/asset_collection_report.md` を参照(2026-11-09)。
+
 あなたは素材収集担当です。コードは書かず、素材を探して所定の場所に保存し、出典を記録してください。
 背景: `/Users/kitano/pj/saibai_men_app`(猫ミームのガチャ&シューティング)のイタリアンブレインロット版を、`/Users/kitano/pj/italian_brainrot_app`(Flutter)で作る。設計は同リポジトリの `docs/plan.md` を先に読むこと。
 
