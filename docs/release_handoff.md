@@ -16,6 +16,7 @@
 - リリースは **chrome-hub の `release.py`** で行う(`~/pj/tools/chrome-hub`。他アプリのspec: `specs/*.toml`、ドキュメント: `CLAUDE.md`・`LISTING.md`・`KNOWLEDGE.md`)。リリース設定で困ったら、`/Users/kitano/pj/minor-qualification-learning-apps` を見る(同じ手順で、すでにリリース済み)。
 - ユーザーは基本的に介入しない。**取り消せない操作は、最後に1回、値を全部並べてまとめて確認**する(下の「5」)。それ以外は、確認なしで進めてよい。
 - コミットは小さく・タスクごと。`Co-Authored-By` は書かない。プッシュは、指示があってから。日報(`/Users/kitano/pj/report_the_results/personal/<年>/<月>/<日>/daily_report.md`)は、`date` で日付を確認して、コミットごとに更新する(11/09 の日報は、まだ作っていない)。
+- **Playの配信国は、EEA・英国を対象にしない**(取引業者になって住所が公開されるのを避ける)。詳細: `docs/play_distribution_countries.md`。提出のあとに、必ず外れていることを確認する。
 - 他のエージェントのシミュレータ・エミュレータは使わない。専用: iOSシミュレータ `italian-brainrot-dev`(UDID `4C81E0DD-3457-4012-87C3-71B18916516B`)。
 
 ## 3. リリース手順(進捗)
