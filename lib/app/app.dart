@@ -1,9 +1,11 @@
+import 'dart:async';
+
 import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import '../core/ads/consent.dart';
 import '../core/audio_service.dart';
 import '../data/character.dart';
 import '../data/user_data.dart';
@@ -36,9 +38,7 @@ Future<Widget> buildApp({UserData? initialUser, List<Override> overrides = const
   final chars = await CharacterRepository.load();
   final user = initialUser ?? await UserDataStore().load();
   AudioService.instance.enabled = user.soundOn;
-  try {
-    MobileAds.instance.initialize();
-  } catch (_) {}
+  unawaited(AdsConsent.start()); // 同意を取ってから広告を初期化する(起動は待たない)
   return ProviderScope(
     overrides: [
       charactersProvider.overrideWithValue(chars),

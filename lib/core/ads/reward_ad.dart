@@ -3,17 +3,19 @@ import 'dart:async';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'ad_helper.dart';
+import 'consent.dart';
 
 /// リワード広告。見終わったら [onReward]。読み込めなければ false を返す。
 class RewardAd {
   static Future<bool> show(void Function() onReward) async {
+    if (!await AdsConsent.ready.timeout(const Duration(seconds: 8), onTimeout: () => false)) return false;
     var ready = false;
     RewardedAd? ad;
     try {
       final done = Completer<RewardedAd?>();
       await RewardedAd.load(
         adUnitId: AdHelper.rewardedAdUnitId,
-        request: const AdRequest(),
+        request: AdsConsent.adRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (a) => done.complete(a),
           onAdFailedToLoad: (_) => done.complete(null),

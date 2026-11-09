@@ -3,6 +3,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../constants.dart';
 import 'ad_helper.dart';
+import 'consent.dart';
 
 /// 画面下のバナー。読み込めなかった時は何も出さず、高さだけ確保する。
 class BannerAdWidget extends StatefulWidget {
@@ -19,10 +20,15 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   @override
   void initState() {
     super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    if (!await AdsConsent.ready || !mounted) return;
     final ad = BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,
       size: AdSize.banner,
-      request: const AdRequest(),
+      request: AdsConsent.adRequest(),
       listener: BannerAdListener(
         onAdLoaded: (_) => mounted ? setState(() => _loaded = true) : null,
         onAdFailedToLoad: (ad, _) => ad.dispose(),
@@ -30,7 +36,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
     );
     _ad = ad;
     try {
-      ad.load();
+      await ad.load();
     } catch (_) {}
   }
 
