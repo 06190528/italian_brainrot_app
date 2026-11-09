@@ -28,6 +28,7 @@
 - [ ] **Androidのリリース署名**: `~/.private_keys/play-upload.properties`(全アプリ共通のアップロードキー。キーは `~/.private_keys/play-upload.jks`)があれば、それで署名するブロックを `app/build.gradle.kts` に入れる。参考: `minor-qualification-learning-apps/apps/shakaifukushishi/android/app/build.gradle`(`signingConfigs.upload`)。`minSdk=24`・`targetSdk` は Flutter 既定(35以上)。
 - [ ] **iOS**: `ITSAppUsesNonExemptEncryption=false` を `Info.plist` に。**iPhoneのみ**にする(`TARGETED_DEVICE_FAMILY = 1`。iPadのスクショと画面確認を避けるため)。向きは縦のみ。
 - [ ] **広告の同意(UMP)と非個人化広告**: 今は `AdRequest()` で、同意なしに `MobileAds.initialize()` している。兄弟アプリの `packages/exam_core/lib/ads/ads.dart` を参考に、(1) UMP の同意を取ってから初期化、(2) バナー・リワードを `AdRequest(nonPersonalizedAds: true)`、(3) `tagForChildDirectedTreatment: no`。ストア申告(ATTなし・個人に合わせない広告)と一致させる。
+- [ ] **クレジット(出典の表記)画面**: 背景は Wikimedia Commons の CC BY 4.0 / CC BY-SA 4.0(`asset_sources/SOURCES.md` に、作者・URLあり)。**表記が必須**。設定画面に「クレジット」を作り、背景の作者・ライセンスを載せる。BGM・SEは CC0(Kenney・OpenGameArt。表記は不要だが、載せてよい)。CC BY-SA の素材(背景)の扱い(同条件での公開が要るか)は、使う背景がどちらのライセンスかを確認して、BY-SA なら BY の背景に替えるか検討する。
 - [ ] **ビルドの確認**: `flutter build appbundle --release --no-pub`(Flutter 3.35.4)→ `python3 ~/pj/minor-qualification-learning-apps/tools/release/check_aab.py <spec> <aab>`。`flutter build ios --release --no-codesign --no-pub`。
 - [ ] **IPA**: `~/pj/minor-qualification-learning-apps/tools/release/build_ipa.py` は **Flutter 3.24.5 を決め打ち**(`FVM_FLUTTER`)。この版ではこのアプリをビルドできない(flame 1.23)。**このリポジトリの `tools/release/` にコピーして、3.35.4 に直す**(兄弟アプリは変えない)。署名は ASC のAPIキー(`~/.private_keys/AuthKey_39GJ5UUS4A.p8`。spec の `[build.ios_upload]` を参照)。
 
