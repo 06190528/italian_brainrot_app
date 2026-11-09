@@ -1,5 +1,7 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 
+import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -43,6 +45,7 @@ class _GatyaScreenState extends ConsumerState<GatyaScreen> with SingleTickerProv
     if (!mounted) return;
     setState(() => _spinning = false);
     await showDialog(context: context, builder: (_) => _GetDialog(def: got, isNew: isNew));
+    if (mounted) _shake.value = 0; // 待機のコマに戻す
   }
 
   Future<void> _watchAd() async {
@@ -63,17 +66,13 @@ class _GatyaScreenState extends ConsumerState<GatyaScreen> with SingleTickerProv
           child: Stack(children: [
             Positioned(top: 12, left: 12, child: RoundIconButton(key: const Key('gatyaBack'), icon: Icons.arrow_back, onPressed: () => Navigator.pop(context))),
             Positioned(top: 12, right: 12, child: CoinChip(coin: coin)),
-            Center(
+            // 元アプリと同じ: 画面の高さの半分のガチャ機を中央に置き、ボタンは下に置く
+            Center(child: _GatyaMachine(anim: _shake, height: MediaQuery.of(context).size.height / 2)),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: MediaQuery.of(context).size.height * 0.12,
               child: Column(mainAxisSize: MainAxisSize.min, children: [
-                AnimatedBuilder(
-                  animation: _shake,
-                  builder: (_, __) {
-                    final t = _shake.value;
-                    final angle = sin(t * pi * 12) * 0.25 * (t > 0 && t < 1 ? 1 : 0);
-                    return Transform.rotate(angle: angle, child: const _Capsule(size: 200));
-                  },
-                ),
-                const SizedBox(height: 24),
                 if (can || _spinning)
                   BannerButton(
                     key: const Key('gatyaSpin'),
@@ -96,41 +95,61 @@ class _GatyaScreenState extends ConsumerState<GatyaScreen> with SingleTickerProv
   }
 }
 
-class _Capsule extends StatelessWidget {
-  final double size;
-  const _Capsule({required this.size});
+/// 元アプリの GatyaUi と同じ: gatya.png(5列×2行=10コマ)。待機は2コマ目、回す時は0.1秒ごとに10コマ全部。
+class _GatyaMachine extends StatefulWidget {
+  final Animation<double> anim; // 0〜1(1600ms)。回している間だけ動く
+  final double height;
+  const _GatyaMachine({required this.anim, required this.height});
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-        width: size,
-        height: size,
-        child: CustomPaint(painter: _CapsulePainter()),
-      );
+  State<_GatyaMachine> createState() => _GatyaMachineState();
 }
 
-class _CapsulePainter extends CustomPainter {
+class _GatyaMachineState extends State<_GatyaMachine> {
+  ui.Image? _image;
+
   @override
-  void paint(Canvas canvas, Size s) {
-    final c = s.center(Offset.zero);
-    final r = s.width / 2;
-    // イタリア国旗の三色(緑・白・赤)を縦に並べて、円で切り抜く
-    canvas.save();
-    canvas.clipPath(Path()..addOval(Rect.fromCircle(center: c, radius: r)));
-    final w = s.width / 3;
-    canvas.drawRect(Rect.fromLTWH(0, 0, w, s.height), Paint()..color = const Color(0xFF2E9E4F));
-    canvas.drawRect(Rect.fromLTWH(w, 0, w, s.height), Paint()..color = Colors.white);
-    canvas.drawRect(Rect.fromLTWH(w * 2, 0, w, s.height), Paint()..color = const Color(0xFFD83A33));
-    canvas.restore();
-    final line = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 6
-      ..color = Colors.black87;
-    canvas.drawCircle(c, r, line);
-    canvas.drawCircle(c + Offset(-r * 0.45, -r * 0.5), r * 0.14, Paint()..color = Colors.white70);
+  void initState() {
+    super.initState();
+    Flame.images.load('orig/gatya.png').then((i) {
+      if (mounted) setState(() => _image = i);
+    });
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  Widget build(BuildContext context) {
+    final img = _image;
+    if (img == null) return SizedBox(height: widget.height);
+    final fw = (img.width - 3) / 5, fh = (img.height + 10) / 2; // 元アプリの切り出しと同じ
+    return AnimatedBuilder(
+      animation: widget.anim,
+      builder: (_, __) {
+        final t = widget.anim.value;
+        final spinning = t > 0 && t < 1;
+        final frame = spinning ? min(9, (t * 1600 / 100).floor()) : (t >= 1 ? 9 : 1);
+        return CustomPaint(
+          size: Size(widget.height * fw / fh, widget.height),
+          painter: _GatyaPainter(img, frame, fw, fh),
+        );
+      },
+    );
+  }
+}
+
+class _GatyaPainter extends CustomPainter {
+  final ui.Image image;
+  final int frame;
+  final double fw, fh;
+  _GatyaPainter(this.image, this.frame, this.fw, this.fh);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final src = Rect.fromLTWH((frame % 5) * fw, (frame ~/ 5) * fh, fw, fh);
+    canvas.drawImageRect(image, src, Offset.zero & size, Paint()..filterQuality = FilterQuality.medium);
+  }
+
+  @override
+  bool shouldRepaint(_GatyaPainter old) => old.frame != frame || old.image != image;
 }
 
 class _GetDialog extends StatelessWidget {
