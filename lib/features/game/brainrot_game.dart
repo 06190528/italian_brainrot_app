@@ -88,11 +88,12 @@ class BrainrotGame extends FlameGame with PanDetector {
 
   @override
   Future<void> onLoad() async {
+    // 初回のデコードで、プレイ中に読み込みが走らないよう、先に読み込む(読み込み中の部品を、更新の途中で外すと例外になる)
+    await Flame.images.loadAll(['orig/energy_bullet.png', 'orig/ki_sprite.png']);
     await add(_Background(await Flame.images.load('orig/background.png')));
     player = _Player(characters[playerId]);
     await add(player);
     player.position = size / 2;
-    await add(_Aura(player));
     _initDifficulty();
     debugInstance = this;
   }
@@ -270,7 +271,7 @@ class BrainrotGame extends FlameGame with PanDetector {
     }
     if (!session.fever.value && session.feverCount.value >= feverNeeded) {
       session.fever.value = true;
-      AudioService.instance.playBgm(AudioService.bgmFever, volume: 0.7);
+      AudioService.instance.playBgm(AudioService.bgmFever, volume: 1.0);
     }
   }
 
@@ -358,33 +359,6 @@ class _Background extends Component with HasGameReference<BrainrotGame> {
   }
 }
 
-/// フィーバー中、キャラの周りに出るオーラ(元アプリの KiEffect: ki_sprite.png の9コマ)。
-class _Aura extends SpriteAnimationComponent with HasGameReference<BrainrotGame> {
-  final _Player player;
-  _Aura(this.player) : super(anchor: Anchor.bottomCenter, priority: 6);
-
-  @override
-  Future<void> onLoad() async {
-    final img = await Flame.images.load('orig/ki_sprite.png');
-    final g = findGame();
-    if (g == null) return;
-    size = Vector2(g.size.x / 4 * 2, g.size.y / 4);
-    final sheet = SpriteSheet(image: img, srcSize: Vector2(img.width.toDouble(), img.height / 9));
-    animation = sheet.createAnimation(row: 0, stepTime: 0.08, from: 0, to: 8, loop: true);
-  }
-
-  @override
-  void update(double dt) {
-    super.update(dt);
-    position = player.position + Vector2(0, player.height);
-  }
-
-  @override
-  void render(Canvas canvas) {
-    if (game.session.fever.value) super.render(canvas);
-  }
-}
-
 class _Player extends SpriteAnimationComponent with HasGameReference<BrainrotGame> {
   final CharacterDef def;
   Dir direction = Dir.none;
@@ -393,22 +367,38 @@ class _Player extends SpriteAnimationComponent with HasGameReference<BrainrotGam
 
   _Player(this.def) : super(anchor: Anchor.center, priority: 5);
 
+  // フィーバー中のオーラ(元アプリの KiEffect: ki_sprite.png の9コマ)。別のコンポーネントにせず、キャラの描画の一部にする
+  SpriteAnimationTicker? _aura;
+  Vector2 _auraSize = Vector2.zero();
+
   @override
   Future<void> onLoad() async {
     animation = await def.loadAnimation();
     final g = findGame(); // 読み込み中に外されたら、何もしない
     if (g == null) return;
     size = Vector2.all(g.size.y / 13);
+    final img = await Flame.images.load('orig/ki_sprite.png');
+    final sheet = SpriteSheet(image: img, srcSize: Vector2(img.width.toDouble(), img.height / 9));
+    _aura = sheet.createAnimation(row: 0, stepTime: 0.08, from: 0, to: 8, loop: true).createTicker();
+    _auraSize = Vector2(g.size.x / 4 * 2, g.size.y / 4);
   }
 
   @override
   void render(Canvas canvas) {
-    if (visible) super.render(canvas);
+    if (!visible) return;
+    super.render(canvas);
+    final aura = _aura;
+    if (aura != null && game.session.fever.value) {
+      // 元アプリと同じ位置: オーラの下端の中央を、キャラの中心の、キャラ1体分下に合わせる
+      aura.getSprite().render(canvas,
+          position: Vector2(size.x / 2 - _auraSize.x / 2, size.y * 1.5 - _auraSize.y), size: _auraSize);
+    }
   }
 
   @override
   void update(double dt) {
     super.update(dt);
+    _aura?.update(dt);
     // GameWidget は再描画の組み立て中に update(0) を呼ぶ。そこでは何も進めない(状態を変えるとエラーになる)
     if (dt == 0 || !game.session.active.value) return;
     final v = _vec(direction) * (speed * dt);

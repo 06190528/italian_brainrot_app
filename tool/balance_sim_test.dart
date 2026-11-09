@@ -42,8 +42,13 @@ Future<Result> play(WidgetTester tester, List<CharacterDef> chars, GameMode mode
     textDirection: TextDirection.ltr,
     child: SizedBox(width: 393, height: 760, child: GameWidget(game: game)),
   ));
-  await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 600)));
+  // 読み込み(大きい背景画像のデコードを含む)が終わるまで、実時間で待つ。固定の時間だと、読み込み途中で始めてしまう
+  for (var i = 0; i < 300 && !game.isLoaded; i++) {
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    await tester.pump(const Duration(milliseconds: 16));
+  }
   await tester.pump(const Duration(milliseconds: 16));
+  expect(game.isLoaded, true, reason: 'ゲームの読み込みが終わる');
   game.start();
 
   const dt = 1 / 60;

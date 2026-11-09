@@ -1,0 +1,9 @@
+Italian Brainrot Daisensou is a simple swipe-controlled action game. No account or login is required.
+
+How to play: swipe to move the character and dodge the enemies crossing the screen. Collect coins to open the gacha (coins only; there are no in-app purchases). Hard mode unlocks after scoring 300 points in Normal mode.
+
+Ads: the app shows Google AdMob banner and rewarded ads (non-personalized ads only; no App Tracking Transparency). In the EEA/UK, a consent form (Google UMP) is shown on first launch.
+
+Ranking: in Hard mode the app sends the player's display name (max 12 characters, default "Player"), the score, and a random per-install ID to Firebase Firestore. The display name is shown to other players on the ranking screen. No other personal data is collected.
+
+Characters are fan-made meme characters. We will promptly remove any asset on request from the rights holder.
