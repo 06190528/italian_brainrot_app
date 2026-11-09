@@ -5,6 +5,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
+import 'package:flame/sprite.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../core/audio_service.dart';
@@ -87,10 +88,11 @@ class BrainrotGame extends FlameGame with PanDetector {
 
   @override
   Future<void> onLoad() async {
-    await add(_Background(await Flame.images.load('bg/play.jpg')));
+    await add(_Background(await Flame.images.load('orig/background.png')));
     player = _Player(characters[playerId]);
     await add(player);
     player.position = size / 2;
+    await add(_Aura(player));
     _initDifficulty();
     debugInstance = this;
   }
@@ -332,21 +334,53 @@ class BrainrotGame extends FlameGame with PanDetector {
 
 // ---------------- 部品 ----------------
 
+/// 元アプリ(saibai_men_app)の背景と同じ: 画面いっぱいに伸ばした画像を2枚、縦に流す(速さは敵の半分)。
 class _Background extends Component with HasGameReference<BrainrotGame> {
   final Image image;
+  double _y = 0; // 0〜画面の高さ
   _Background(this.image) : super(priority: -10);
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    if (dt == 0 || !game.session.active.value) return;
+    _y = (_y + game.enemySpeed * 0.5 * dt) % game.size.y;
+  }
 
   @override
   void render(Canvas canvas) {
     final s = game.size;
-    final scale = max(s.x / image.width, s.y / image.height);
-    final w = image.width * scale, h = image.height * scale;
-    final dst = Rect.fromLTWH((s.x - w) / 2, (s.y - h) / 2, w, h);
-    canvas.drawImageRect(
-        image,
-        Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
-        dst,
-        Paint()..filterQuality = FilterQuality.medium);
+    final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
+    final paint = Paint()..filterQuality = FilterQuality.medium;
+    canvas.drawImageRect(image, src, Rect.fromLTWH(0, _y, s.x, s.y), paint);
+    canvas.drawImageRect(image, src, Rect.fromLTWH(0, _y - s.y, s.x, s.y), paint);
+  }
+}
+
+/// フィーバー中、キャラの周りに出るオーラ(元アプリの KiEffect: ki_sprite.png の9コマ)。
+class _Aura extends SpriteAnimationComponent with HasGameReference<BrainrotGame> {
+  final _Player player;
+  _Aura(this.player) : super(anchor: Anchor.bottomCenter, priority: 6);
+
+  @override
+  Future<void> onLoad() async {
+    final img = await Flame.images.load('orig/ki_sprite.png');
+    final g = findGame();
+    if (g == null) return;
+    size = Vector2(g.size.x / 4 * 2, g.size.y / 4);
+    final sheet = SpriteSheet(image: img, srcSize: Vector2(img.width.toDouble(), img.height / 9));
+    animation = sheet.createAnimation(row: 0, stepTime: 0.08, from: 0, to: 8, loop: true);
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    position = player.position + Vector2(0, player.height);
+  }
+
+  @override
+  void render(Canvas canvas) {
+    if (game.session.fever.value) super.render(canvas);
   }
 }
 
@@ -426,52 +460,32 @@ class _Enemy extends SpriteAnimationComponent with HasGameReference<BrainrotGame
   }
 }
 
-class _Item extends PositionComponent with HasGameReference<BrainrotGame> {
+/// 落ちてくるアイテム(元アプリの Deathblow: energy_bullet.png の16コマ)。
+class _Item extends SpriteAnimationComponent with HasGameReference<BrainrotGame> {
   final double speed;
-  double _t = 0;
   _Item(this.speed) : super(anchor: Anchor.center, priority: 4);
 
   @override
   Future<void> onLoad() async {
+    final img = await Flame.images.load('orig/energy_bullet.png');
     final g = findGame();
     if (g == null) return;
-    size = Vector2.all(g.size.y / 20);
+    size = Vector2.all(g.size.x / 8);
+    final sheet = SpriteSheet(image: img, srcSize: Vector2(274.3, 270));
+    animation = sheet.createAnimation(row: 0, stepTime: 0.1, from: 0, to: 15);
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-    _t += dt;
     if (dt == 0 || !game.session.active.value) return; // update(0) では進めない
     position.y += speed * dt;
-    if (position.distanceTo(game.player.position) <= (size.x + game.player.size.x) * 0.35) {
+    if (position.distanceTo(game.player.position) <= (size.length / 2 + game.player.size.length / 2) / 1.7) {
       game._itemTaken(this);
     } else if (position.y > game.size.y + size.y) {
       game.items.remove(this);
       removeFromParent();
     }
-  }
-
-  @override
-  void render(Canvas canvas) {
-    final c = Offset(size.x / 2, size.y / 2);
-    final r = size.x / 2 * (1 + 0.1 * sin(_t * 8));
-    canvas.drawCircle(c, r * 1.3, Paint()..color = const Color(0x55FFD54F));
-    final path = Path();
-    for (var i = 0; i < 10; i++) {
-      final rad = i.isEven ? r : r * 0.45;
-      final a = -pi / 2 + i * pi / 5 + _t;
-      final pt = c + Offset(cos(a) * rad, sin(a) * rad);
-      i == 0 ? path.moveTo(pt.dx, pt.dy) : path.lineTo(pt.dx, pt.dy);
-    }
-    path.close();
-    canvas.drawPath(path, Paint()..color = const Color(0xFFFFC107));
-    canvas.drawPath(
-        path,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2
-          ..color = const Color(0xFFB26A00));
   }
 }
 

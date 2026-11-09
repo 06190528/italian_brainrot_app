@@ -126,7 +126,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    // プレイ中・ポーズ中は、iOSのスワイプバック(端からのスワイプ)・戻るキーで前の画面に戻らない。
+    // 画面のボタンの Navigator.pop は、これの影響を受けない
+    return PopScope(
+      canPop: phase == _Phase.ready || phase == _Phase.over || phase == _Phase.clear,
+      child: Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
         bottom: false,
@@ -151,7 +155,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           const BannerAdWidget(),
         ]),
       ),
-    );
+    ));
   }
 
   Widget _hud() {
@@ -161,27 +165,42 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         left: 8,
         child: RoundIconButton(key: const Key('pauseButton'), icon: Icons.pause, onPressed: _pause),
       ),
+      // 元アプリと同じ: かわした数・目標・フィーバーのゲージを、右上のパネルにまとめる
       Positioned(
         top: 8,
-        left: 0,
-        right: 0,
-        child: Center(
-          child: ValueListenableBuilder<int>(
-            valueListenable: session.score,
-            builder: (_, s, __) => OutlinedText('$s', key: const Key('scoreText'), fontSize: 44),
-          ),
-        ),
-      ),
-      Positioned(
-        top: 64,
-        left: 16,
-        right: 16,
-        child: ValueListenableBuilder<int>(
-          valueListenable: session.feverCount,
-          builder: (_, c, __) => _FeverBar(
-            value: session.fever.value ? 1 : (c / game.feverNeeded).clamp(0.0, 1.0),
-            fever: session.fever.value,
-          ),
+        right: 6,
+        child: ListenableBuilder(
+          listenable: Listenable.merge([session.score, session.feverCount, session.fever]),
+          builder: (_, __) {
+            final w = MediaQuery.of(context).size.width;
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(128, 222, 222, 222),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.black, width: 1),
+              ),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Text('${session.score.value}',
+                    key: const Key('scoreText'),
+                    style: TextStyle(
+                      fontSize: w * 0.05,
+                      fontWeight: FontWeight.bold,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.black,
+                      letterSpacing: 1.0,
+                      shadows: const [Shadow(blurRadius: 1.0, color: Colors.black, offset: Offset(2.0, 2.0))],
+                    )),
+                if (widget.mode == GameMode.normal)
+                  Text(S.goalScore(normalGoalScore),
+                      style: TextStyle(fontSize: w * 0.03, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: Colors.black)),
+                _FeverBar(
+                  value: session.fever.value ? 1 : (session.feverCount.value / game.feverNeeded).clamp(0.0, 1.0),
+                  fever: session.fever.value,
+                ),
+              ]),
+            );
+          },
         ),
       ),
       Positioned(
@@ -203,9 +222,17 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                       border: Border.all(color: Colors.white, width: 4),
                       boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 8)],
                     ),
-                    child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      const Icon(Icons.bolt, size: 36, color: Colors.deepOrange),
-                      Text('x$n', style: const TextStyle(fontWeight: FontWeight.w900, color: Colors.black)),
+                    child: Stack(alignment: Alignment.center, children: [
+                      Image.asset('assets/images/orig/energy_icon.png', width: 48, height: 48, fit: BoxFit.cover),
+                      Positioned(
+                        right: 6,
+                        bottom: 6,
+                        child: Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                          child: Text('$n', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 13)),
+                        ),
+                      ),
                     ]),
                   ),
                 ),
@@ -286,6 +313,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 }
 
+/// 元アプリの GaugeBar + saiazinn.png(フィーバーのゲージ)。
 class _FeverBar extends StatelessWidget {
   final double value;
   final bool fever;
@@ -293,18 +321,30 @@ class _FeverBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    final h = w * 0.03;
     return Column(children: [
       if (fever) OutlinedText(S.fever, fontSize: 22, color: Colors.orangeAccent),
-      ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: LinearProgressIndicator(
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Container(
           key: const Key('feverBar'),
-          value: value,
-          minHeight: 12,
-          backgroundColor: Colors.black54,
-          valueColor: AlwaysStoppedAnimation(fever ? Colors.redAccent : Colors.orange),
+          width: w * 0.3,
+          height: h,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(h / 2),
+            border: Border.all(color: Colors.black, width: 2),
+            color: Colors.grey.withValues(alpha: 0.5),
+          ),
+          child: FractionallySizedBox(
+            alignment: Alignment.centerLeft,
+            widthFactor: value,
+            child: DecoratedBox(
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(h / 2), color: Colors.orange),
+            ),
+          ),
         ),
-      ),
+        Image.asset('assets/images/orig/saiazinn.png', width: w * 0.1, height: w * 0.1, fit: BoxFit.cover),
+      ]),
     ]);
   }
 }

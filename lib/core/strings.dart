@@ -30,6 +30,7 @@ class S {
   static String get ok => _t('OK', 'OK');
   static String get yes => _t('はい', 'Yes');
   static String get no => _t('いいえ', 'No');
+  static String goalScore(int n) => _t('目標スコア : $n', 'Goal : $n');
   static String get score => _t('スコア', 'Score');
   static String get bestScore => _t('ベスト', 'Best');
   static String get gameOver => _t('ゲームオーバー', 'Game Over');
