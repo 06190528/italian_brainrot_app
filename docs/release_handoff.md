@@ -1,5 +1,7 @@
 # リリース作業の引き継ぎ(2026-11-09 時点)
 
+> **2026-11-10 更新: ASC・Play とも審査に提出済み**(ビルド 1.0.0+1、ゲート通過コミット `97819d7`)。残りは、審査結果の確認・公開後の AdMob `link`/`admob_verify`・ターゲット層とデータ申告の追加(`docs/play_target_audience_handoff.md`)。以下は、提出前の記録。
+
 新しいチャットは、**まずこのファイルを読む**。あわせて `docs/plan.md`(設計)・`backend/README.md`(ランキング)・`docs/asset_collection_report.md`(素材)・`~/pj/tools/chrome-hub/CLAUDE.md`(リリースツール)。
 メモリ(`~/.claude/projects/-Users-kitano-pj-italian-brainrot-app/memory/`)にも方針が入っている。
 
