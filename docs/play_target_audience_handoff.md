@@ -1,5 +1,8 @@
 # 引き継ぎ: Play のターゲット層を「18歳以上」以外にも対応させる(別チャットで開発)
 
+> **2026-11-11 対応済み**: `set_target_audience_multi`(`sites/playstore_content.py`)を追加し、spec の `target_audience` をリストで指定できるようにした。13歳未満を含む時の申告は spec の `[play.family]`(法的宣言・広告の設問「はい」・教師承認「含めない」)から読む。本アプリは「5歳以下〜18歳以上」で保存済み。広告の子ども向け設定・表示名の公開の見直しは、後で対応(ユーザーの方針)。Apple は 13+ のまま(表示名の公開=ユーザー作成コンテンツのため。回答を偽って下げない)。
+
+
 作成: 2026-11-09 / 対象ツール: `~/pj/tools/chrome-hub`(`release.py`・`sites/playstore_content.py`)
 
 ## 背景
