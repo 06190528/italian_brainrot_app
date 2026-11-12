@@ -2,6 +2,9 @@
 
 > **2026-11-10 更新: ASC・Play とも審査に提出済み**(ビルド 1.0.0+1、ゲート通過コミット `97819d7`)。残りは、審査結果の確認・公開後の AdMob `link`/`admob_verify`・ターゲット層とデータ申告の追加(`docs/play_target_audience_handoff.md`)。以下は、提出前の記録。
 
+> **2026-11-12 14:20 の確認(読むだけ)**: iOS 1.0.0 は **審査待ち**(提出 11/10 火 10:28)。Android は **公開済み**(最新リリース24時間前)。Play の配信国は、EEA・英国が外れていることを確認(`sites.playstore_countries italianbrainrot --dry-run` → 変更なし)。AdMob は両OSとも「要審査・広告配信を制限」。**AdMob の Android 紐づけは、ストア検索が0件で未実施**(公開直後は、検索に出るまで時間がかかる)。再試行: `cd ~/pj/tools/chrome-hub && .venv/bin/python -m sites.admob link "イタリアンブレインロット大戦争" Android com.okinnnikudekao.italianbrainrot --dry-run`(通ったら `--dry-run` を外す)。iOS は、承認後に `https://apps.apple.com/jp/app/id6832495202` で紐づけ。
+> **状況の確認方法**: `review_status.py` は、このアプリのAdMob欄が「app_config.json を読めない」になる(兄弟リポジトリの `apps/<slug>/assets/app_config.json` を探すため。chrome-hub 側の修正は、他のエージェントが編集中だったので未対応)。ASC・Play 欄は正しく出る。AdMob は `.venv/bin/python -m sites.admob status イタリアン` で読む。ブラウザのプロファイル(appstore/playstore)は、他のエージェントも使うので、`pgrep -fl review_status` で実行中でないか見てから使う。
+
 新しいチャットは、**まずこのファイルを読む**。あわせて `docs/plan.md`(設計)・`backend/README.md`(ランキング)・`docs/asset_collection_report.md`(素材)・`~/pj/tools/chrome-hub/CLAUDE.md`(リリースツール)。
 メモリ(`~/.claude/projects/-Users-kitano-pj-italian-brainrot-app/memory/`)にも方針が入っている。
 
