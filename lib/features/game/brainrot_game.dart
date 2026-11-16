@@ -22,6 +22,9 @@ enum GameMode {
 
 enum Dir { up, down, left, right, none }
 
+/// 敵の動き。直進のほかに、蛇行(波を描いて横切る)と追尾(自機を通り過ぎるまで、横から寄ってくる)がある。
+enum EnemyType { straight, wavy, chaser }
+
 /// 画面(HUD)が購読する、プレイ中の状態。
 class GameSession {
   final score = ValueNotifier<int>(0);
@@ -233,11 +236,22 @@ class BrainrotGame extends FlameGame with PanDetector {
       }
       if (pos.distanceTo(player.position) >= size.y / 5) break;
     }
-    _spawn(kind, pos, dir);
+    _spawn(kind, pos, dir, type: _pickType());
   }
 
-  void _spawn(int kind, Vector2 pos, Dir dir) {
-    final e = _Enemy(characters[kind], dir, enemySpeed)..position = pos;
+  /// 敵の動きを、スコアで決める(0〜4点は直進だけ / 5〜14点は蛇行30% / 15点以降は蛇行25%・追尾15%)。
+  EnemyType _pickType() {
+    final s = session.score.value;
+    if (s < 5) return EnemyType.straight;
+    final r = _rng.nextDouble();
+    if (s < 15) return r < 0.30 ? EnemyType.wavy : EnemyType.straight;
+    if (r < 0.15 && enemies.where((e) => e.type == EnemyType.chaser).length < 2) return EnemyType.chaser;
+    if (r >= 0.15 && r < 0.40) return EnemyType.wavy;
+    return EnemyType.straight;
+  }
+
+  void _spawn(int kind, Vector2 pos, Dir dir, {EnemyType type = EnemyType.straight}) {
+    final e = _Enemy(characters[kind], dir, enemySpeed, type)..position = pos;
     enemies.add(e);
     add(e);
   }
@@ -247,8 +261,8 @@ class BrainrotGame extends FlameGame with PanDetector {
   static BrainrotGame? debugInstance;
 
   @visibleForTesting
-  void debugSpawnEnemy(Vector2 pos, Dir dir, {int? kind}) =>
-      _spawn(kind ?? (playerId == 0 ? 1 : 0), pos, dir);
+  void debugSpawnEnemy(Vector2 pos, Dir dir, {int? kind, EnemyType type = EnemyType.straight}) =>
+      _spawn(kind ?? (playerId == 0 ? 1 : 0), pos, dir, type: type);
 
   @visibleForTesting
   Vector2 get debugPlayerPosition => player.position.clone();
@@ -344,6 +358,9 @@ class BrainrotGame extends FlameGame with PanDetector {
     }
     session.barrierProgress.value = session.barrier.value ? 0 : _barrierProgress / need;
   }
+
+  @visibleForTesting
+  EnemyType debugPickType() => _pickType();
 
   @visibleForTesting
   double debugAddItem(Vector2 pos) {
@@ -520,9 +537,45 @@ Vector2 _vec(Dir d) => switch (d) {
 class _Enemy extends SpriteAnimationComponent with HasGameReference<BrainrotGame> {
   final CharacterDef def;
   final Dir dir; // 進行方向(シミュレーションからも読む)
-  double speed;
+  final EnemyType type;
+  double speed; // 基準の速さ(速度段階で上がる)。種類ごとの係数は、下の forwardMul で掛ける
 
-  _Enemy(this.def, this.dir, this.speed) : super(anchor: Anchor.center, priority: 3);
+  _Enemy(this.def, this.dir, this.speed, this.type) : super(anchor: Anchor.center, priority: 3);
+
+  Vector2? _base; // 蛇行の中心線の位置
+  double _trav = 0; // 蛇行: 進んだ距離
+  double _age = 0;
+  bool _passedPlayer = false; // 追尾: 自機を通り過ぎたら、直進に戻る
+
+  double get forwardMul => switch (type) {
+        EnemyType.straight => 1.0,
+        EnemyType.wavy => 0.9,
+        EnemyType.chaser => 0.8,
+      };
+
+  Vector2 get _fwd => _vec(dir);
+  Vector2 get _perp => Vector2(_fwd.y.abs(), _fwd.x.abs());
+  double get _amp => game.size.y * 0.04;
+  double get _lambda => game.size.y * 0.45;
+
+  /// 追尾: 自機との横のずれ(進行方向に直角な向きの差)。
+  double get _lateralGap => (game.player.position - position).dot(_perp);
+
+  /// いまの速度ベクトル(ボットが、先を予測するのに使う)。
+  Vector2 get velocity {
+    final f = _fwd * (speed * forwardMul);
+    switch (type) {
+      case EnemyType.straight:
+        return f;
+      case EnemyType.wavy:
+        final k = 2 * pi / _lambda;
+        return f + _perp * (_amp * k * cos(k * _trav) * speed * forwardMul);
+      case EnemyType.chaser:
+        final g = _lateralGap;
+        if (_passedPlayer || g.abs() < 4) return f;
+        return f + _perp * (g.sign * speed * 0.3);
+    }
+  }
 
   @override
   Future<void> onLoad() async {
@@ -533,18 +586,75 @@ class _Enemy extends SpriteAnimationComponent with HasGameReference<BrainrotGame
   }
 
   @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    final c = Offset(size.x / 2, size.y / 2);
+    switch (type) {
+      case EnemyType.straight:
+        break;
+      case EnemyType.wavy:
+        paintEnemyRing(canvas, c, size.x * 0.62, const Color(0xCCAB47BC), _age);
+      case EnemyType.chaser:
+        paintEnemyRing(canvas, c, size.x * 0.62, const Color(0xCCE53935), _age);
+        if (_age < 0.6) paintBang(canvas, Offset(c.dx, -size.y * 0.35), size.y * 0.5);
+    }
+  }
+
+  @override
   void update(double dt) {
     super.update(dt);
     if (dt == 0 || !game.session.active.value) return; // update(0) では進めない(上と同じ理由)
+    _age += dt;
     final p = game.player;
     final hit = (size.x + p.size.x) * 0.3;
     if (!game.invulnerable && position.distanceTo(p.position) <= hit) {
       game._playerTouched(this);
       return;
     }
-    position.add(_vec(dir) * (speed * dt));
+    final fwd = _fwd, perp = _perp;
+    switch (type) {
+      case EnemyType.straight:
+        position.add(fwd * (speed * dt));
+      case EnemyType.wavy:
+        final step = speed * forwardMul * dt;
+        final base = (_base ??= position.clone());
+        base.add(fwd * step);
+        _trav += step;
+        position.setFrom(base + perp * (_amp * sin(2 * pi * _trav / _lambda)));
+        // 横にはみ出して、画面の端で「通過」と判定されないように、横の座標は画面の中に収める
+        if (perp.x > 0) {
+          position.x = position.x.clamp(0.0, game.size.x);
+        } else {
+          position.y = position.y.clamp(0.0, game.size.y);
+        }
+      case EnemyType.chaser:
+        position.add(fwd * (speed * forwardMul * dt));
+        if (!_passedPlayer && (position - p.position).dot(fwd) >= 0) _passedPlayer = true;
+        if (!_passedPlayer) {
+          final g = _lateralGap;
+          if (g.abs() >= 4) position.add(perp * (g.sign * min(speed * 0.3 * dt, g.abs())));
+        }
+    }
+    // 画面の外へ出たか(進行方向だけで判定する)
     final s = game.size;
-    if (position.x < -1 || position.x > s.x + 1 || position.y < -1 || position.y > s.y + 1) {
+    final out = switch (dir) {
+      Dir.down => position.y > s.y + 1,
+      Dir.up => position.y < -1,
+      Dir.right => position.x > s.x + 1,
+      Dir.left => position.x < -1,
+      Dir.none => false,
+    };
+    final base = _base;
+    final outBase = type == EnemyType.wavy && base != null
+        ? switch (dir) {
+            Dir.down => base.y > s.y + 1,
+            Dir.up => base.y < -1,
+            Dir.right => base.x > s.x + 1,
+            Dir.left => base.x < -1,
+            Dir.none => false,
+          }
+        : out;
+    if (out || outBase) {
       removeFromParent();
       game._enemyPassed(this);
     }

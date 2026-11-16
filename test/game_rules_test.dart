@@ -71,14 +71,14 @@ void main() {
     expect(r.over.length, 1, reason: '無敵が切れたあとの接触で終わる');
   });
 
-  testWidgets('バリア: 規定数かわすと再生する(★1は110体)', (tester) async {
+  testWidgets('バリア: 規定数かわすと再生する(★1は320体)', (tester) async {
     final r = await _boot(tester, chars, 0);
     final g = r.game;
     await touch(tester, g);
     expect(g.session.barrier.value, false);
-    g.debugAdvanceBarrier(109);
+    g.debugAdvanceBarrier(319);
     expect(g.session.barrier.value, false);
-    expect(g.session.barrierProgress.value, closeTo(109 / 110, 1e-9));
+    expect(g.session.barrierProgress.value, closeTo(319 / 320, 1e-9));
     g.debugAdvanceBarrier(1);
     expect(g.session.barrier.value, true);
   });
@@ -139,5 +139,49 @@ void main() {
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
     base.game.debugTick(0.1);
     expect(base.game.debugItemDistance(), greaterThanOrEqualTo(d0 - 1));
+  });
+
+  testWidgets('敵の動き: スコア0〜4は直進だけ / 5以上は蛇行が混ざる / 追尾は同時に2体まで', (tester) async {
+    final g = (await _boot(tester, chars, 0)).game;
+    for (var i = 0; i < 300; i++) {
+      expect(g.debugPickType(), EnemyType.straight);
+    }
+    g.session.score.value = 10;
+    final t10 = {for (var i = 0; i < 300; i++) g.debugPickType()};
+    expect(t10, {EnemyType.straight, EnemyType.wavy}, reason: '5〜14点は蛇行まで');
+    g.session.score.value = 30;
+    final t30 = {for (var i = 0; i < 600; i++) g.debugPickType()};
+    expect(t30, {EnemyType.straight, EnemyType.wavy, EnemyType.chaser});
+    // 追尾が2体いたら、3体目は出ない
+    for (var i = 0; i < 2; i++) {
+      g.debugSpawnEnemy(Vector2(5.0 + i, 5), Dir.down, type: EnemyType.chaser);
+    }
+    final after = {for (var i = 0; i < 600; i++) g.debugPickType()};
+    expect(after.contains(EnemyType.chaser), false);
+  });
+
+  testWidgets('蛇行: 端から出ても、画面を抜けるまで通過にならず、抜けたら+1', (tester) async {
+    final g = (await _boot(tester, chars, 0)).game;
+    g.debugSpawnEnemy(Vector2(2, 0), Dir.down, type: EnemyType.wavy);
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+    g.debugTick(1.0);
+    expect(g.session.score.value, 0, reason: '横にはみ出しても、まだ通過にはならない');
+    g.debugTick(40);
+    expect(g.session.score.value, 1);
+    expect(g.enemies, isEmpty);
+  });
+
+  testWidgets('追尾: 自機を通り過ぎるまで寄ってきて、通り過ぎたら直進で抜ける', (tester) async {
+    final g = (await _boot(tester, chars, 0)).game;
+    final p = g.debugPlayerPosition;
+    final startX = p.x - g.size.x * 0.3; // 自機より左の、上端から下へ
+    g.debugSpawnEnemy(Vector2(startX, 0), Dir.down, type: EnemyType.chaser);
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+    final e = g.enemies.first;
+    final gap0 = (p.x - e.position.x).abs();
+    g.debugTick(1.0);
+    expect((p.x - e.position.x).abs(), lessThan(gap0), reason: '自機の横位置へ寄る');
+    g.debugTick(40);
+    expect(g.session.score.value, 1, reason: '最後は画面を抜けて+1(バリアがかばっていても、スコアは入る)');
   });
 }

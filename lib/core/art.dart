@@ -69,6 +69,29 @@ void paintMagnetRing(Canvas canvas, Offset c, double r, double t) {
   }
 }
 
+/// 敵の種類の目印(回る点線の輪)。
+void paintEnemyRing(Canvas canvas, Offset c, double r, Color color, double t) {
+  final paint = Paint()
+    ..color = color
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 3
+    ..strokeCap = StrokeCap.round;
+  for (var i = 0; i < 8; i++) {
+    final a0 = t * 2 + i * pi / 4;
+    canvas.drawArc(Rect.fromCircle(center: c, radius: r), a0, pi / 6, false, paint);
+  }
+}
+
+/// 「!」(追尾の敵が出た合図)。
+void paintBang(Canvas canvas, Offset c, double h) {
+  final paint = Paint()
+    ..color = const Color(0xFFE53935)
+    ..strokeWidth = h * 0.22
+    ..strokeCap = StrokeCap.round;
+  canvas.drawLine(Offset(c.dx, c.dy - h / 2), Offset(c.dx, c.dy + h * 0.1), paint);
+  canvas.drawCircle(Offset(c.dx, c.dy + h * 0.4), h * 0.12, paint);
+}
+
 /// 星だけを描くアイコン(ボタン用)。
 class StarIcon extends StatelessWidget {
   final double size;

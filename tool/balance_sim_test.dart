@@ -97,13 +97,8 @@ void _decide(BrainrotGame g, Random rng) {
     final np = (p + v)..clamp(Vector2.all(10), size - Vector2.all(10));
     var minDist = 1e9;
     for (final e in g.enemies) {
-      final ev = switch (_dirOf(e)) {
-        Dir.up => Vector2(0, -1),
-        Dir.down => Vector2(0, 1),
-        Dir.left => Vector2(-1, 0),
-        Dir.right => Vector2(1, 0),
-        Dir.none => Vector2.zero(),
-      } * (g.enemySpeed * horizon);
+      // 種類ごとの速度(直進・蛇行・追尾)を、そのまま使って先を予測する
+      final ev = ((e as dynamic).velocity as Vector2) * horizon;
       // 途中の距離も見る(0.5秒の間に近づく)
       for (final f in [0.25, 0.5, 1.0]) {
         final pp = p + (np - p) * f;
@@ -120,8 +115,6 @@ void _decide(BrainrotGame g, Random rng) {
   }
   g.setDirection(best);
 }
-
-Dir _dirOf(dynamic e) => (e as dynamic).dir as Dir;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
