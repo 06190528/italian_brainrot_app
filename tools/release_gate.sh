@@ -30,6 +30,7 @@ xcrun simctl boot "$SIM_UDID" 2>/dev/null || true
 
 run analyze      "$FLUTTER" analyze --no-pub
 run unit         "$FLUTTER" test --no-pub
+run shared_assets tools/check_shared_assets.sh
 run node         bash -c 'cd backend/ranking && npm test'
 
 # 独立した重い処理は、バックグラウンドで並列に流す(シミュレータも ios/ も使わない)
@@ -50,7 +51,7 @@ fi
 wait
 
 echo; echo "===== ゲートの結果 ====="
-for n in analyze unit node balance_sim drive_flow drive_play drive_ranking build_aab build_ios; do
+for n in analyze unit shared_assets node balance_sim drive_flow drive_play drive_ranking build_aab build_ios; do
   [ -f "$LOG/$n.result" ] && { cat "$LOG/$n.result"; grep -q "^FAIL" "$LOG/$n.result" && failed=1; }
 done
 if [ $failed -eq 0 ]; then echo "全部通った"; else echo "落ちたテストがある(リリースしない)"; fi

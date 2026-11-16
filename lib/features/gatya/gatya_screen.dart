@@ -1,7 +1,5 @@
 import 'dart:math';
-import 'dart:ui' as ui;
 
-import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -66,7 +64,7 @@ class _GatyaScreenState extends ConsumerState<GatyaScreen> with SingleTickerProv
           child: Stack(children: [
             Positioned(top: 12, left: 12, child: RoundIconButton(key: const Key('gatyaBack'), icon: Icons.arrow_back, onPressed: () => Navigator.pop(context))),
             Positioned(top: 12, right: 12, child: CoinChip(coin: coin)),
-            // 元アプリと同じ: 画面の高さの半分のガチャ機を中央に置き、ボタンは下に置く
+            // 画面の高さの半分のガチャ機を中央に置き、ボタンは下に置く
             Center(child: _GatyaMachine(anim: _shake, height: MediaQuery.of(context).size.height / 2)),
             Positioned(
               left: 0,
@@ -95,61 +93,73 @@ class _GatyaScreenState extends ConsumerState<GatyaScreen> with SingleTickerProv
   }
 }
 
-/// 元アプリの GatyaUi と同じ: gatya.png(5列×2行=10コマ)。待機は2コマ目、回す時は0.1秒ごとに10コマ全部。
-class _GatyaMachine extends StatefulWidget {
+/// ガチャ機(コード描画)。透明のドームに、色とりどりのカプセル。回している間は、カプセルが跳ねて、つまみが回る。
+class _GatyaMachine extends StatelessWidget {
   final Animation<double> anim; // 0〜1(1600ms)。回している間だけ動く
   final double height;
   const _GatyaMachine({required this.anim, required this.height});
 
   @override
-  State<_GatyaMachine> createState() => _GatyaMachineState();
-}
-
-class _GatyaMachineState extends State<_GatyaMachine> {
-  ui.Image? _image;
-
-  @override
-  void initState() {
-    super.initState();
-    Flame.images.load('orig/gatya.png').then((i) {
-      if (mounted) setState(() => _image = i);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final img = _image;
-    if (img == null) return SizedBox(height: widget.height);
-    final fw = (img.width - 3) / 5, fh = (img.height + 10) / 2; // 元アプリの切り出しと同じ
-    return AnimatedBuilder(
-      animation: widget.anim,
-      builder: (_, __) {
-        final t = widget.anim.value;
-        final spinning = t > 0 && t < 1;
-        final frame = spinning ? min(9, (t * 1600 / 100).floor()) : (t >= 1 ? 9 : 1);
-        return CustomPaint(
-          size: Size(widget.height * fw / fh, widget.height),
-          painter: _GatyaPainter(img, frame, fw, fh),
-        );
-      },
-    );
-  }
+  Widget build(BuildContext context) => AnimatedBuilder(
+        animation: anim,
+        builder: (_, __) => CustomPaint(
+          size: Size(height * 0.72, height),
+          painter: _GatyaPainter(anim.value),
+        ),
+      );
 }
 
 class _GatyaPainter extends CustomPainter {
-  final ui.Image image;
-  final int frame;
-  final double fw, fh;
-  _GatyaPainter(this.image, this.frame, this.fw, this.fh);
+  final double t; // 0=待機 / 0〜1=回転中 / 1=終了
+  _GatyaPainter(this.t);
+
+  static const _colors = [
+    Color(0xFFE53935), Color(0xFF43A047), Color(0xFF1E88E5), Color(0xFFFDD835), Color(0xFF8E24AA),
+    Color(0xFFFB8C00), Color(0xFF00ACC1), Color(0xFFD81B60), Color(0xFF7CB342), Color(0xFF5E35B1),
+    Color(0xFFF4511E), Color(0xFF3949AB),
+  ];
 
   @override
   void paint(Canvas canvas, Size size) {
-    final src = Rect.fromLTWH((frame % 5) * fw, (frame ~/ 5) * fh, fw, fh);
-    canvas.drawImageRect(image, src, Offset.zero & size, Paint()..filterQuality = FilterQuality.medium);
+    final w = size.width, h = size.height;
+    final spinning = t > 0 && t < 1;
+    // 本体(下の箱)
+    final body = RRect.fromRectAndRadius(Rect.fromLTWH(w * 0.08, h * 0.55, w * 0.84, h * 0.42), Radius.circular(w * 0.08));
+    canvas.drawRRect(body, Paint()..color = const Color(0xFFC62828));
+    canvas.drawRRect(body, Paint()..color = const Color(0xFF7F0000)..style = PaintingStyle.stroke..strokeWidth = 4);
+    // 取り出し口
+    final chute = RRect.fromRectAndRadius(Rect.fromLTWH(w * 0.3, h * 0.82, w * 0.4, h * 0.11), Radius.circular(w * 0.04));
+    canvas.drawRRect(chute, Paint()..color = const Color(0xFF3E0000));
+    // つまみ
+    final knobC = Offset(w * 0.5, h * 0.68);
+    canvas.drawCircle(knobC, w * 0.13, Paint()..color = const Color(0xFFFFD54F));
+    canvas.drawCircle(knobC, w * 0.13, Paint()..color = const Color(0xFF8D6E00)..style = PaintingStyle.stroke..strokeWidth = 3);
+    final ang = spinning ? t * 4 * pi : 0.0;
+    canvas.drawLine(knobC + Offset(cos(ang), sin(ang)) * (w * 0.1), knobC - Offset(cos(ang), sin(ang)) * (w * 0.1),
+        Paint()..color = const Color(0xFF8D6E00)..strokeWidth = 6..strokeCap = StrokeCap.round);
+    // ドーム
+    final domeC = Offset(w * 0.5, h * 0.33);
+    final domeR = w * 0.46;
+    canvas.drawCircle(domeC, domeR, Paint()..color = const Color(0x33B3E5FC));
+    // カプセル(ドームの中)。回している間は跳ねる
+    final rng = Random(11);
+    for (var i = 0; i < _colors.length; i++) {
+      final a = rng.nextDouble() * 2 * pi;
+      final d = sqrt(rng.nextDouble()) * (domeR * 0.68);
+      var c = domeC + Offset(cos(a), sin(a)) * d;
+      if (spinning) c += Offset(sin(t * 40 + i * 1.7), cos(t * 33 + i * 2.3)) * (w * 0.03);
+      final r = w * 0.085;
+      canvas.drawCircle(c, r, Paint()..color = _colors[i]);
+      canvas.drawArc(Rect.fromCircle(center: c, radius: r), pi, pi, true, Paint()..color = Colors.white.withValues(alpha: 0.35));
+      canvas.drawCircle(c, r, Paint()..color = Colors.black26..style = PaintingStyle.stroke..strokeWidth = 1.5);
+    }
+    canvas.drawCircle(domeC, domeR, Paint()..color = Colors.white70..style = PaintingStyle.stroke..strokeWidth = 5);
+    // 土台との境目
+    canvas.drawRect(Rect.fromLTWH(w * 0.2, h * 0.55, w * 0.6, h * 0.03), Paint()..color = const Color(0xFF7F0000));
   }
 
   @override
-  bool shouldRepaint(_GatyaPainter old) => old.frame != frame || old.image != image;
+  bool shouldRepaint(_GatyaPainter old) => old.t != t;
 }
 
 class _GetDialog extends StatelessWidget {

@@ -37,7 +37,6 @@ flutter:
     - assets/images/characters/
     - assets/images/ui/
     - assets/images/bg/
-    - assets/images/orig/
     - assets/sounds/
 
 flutter_launcher_icons:
