@@ -54,6 +54,19 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300)); // 画面の描画を待つ
     await binding.takeScreenshot('12_fever');
 
+    // 敵の動き3種(直進・蛇行・追尾)が、一度に見える場面を撮る(ストアのスクショ用)
+    game.debugSpawnEnemy(Vector2(game.size.x * 0.22, 150), Dir.down, kind: 3, type: EnemyType.chaser);
+    game.debugSpawnEnemy(Vector2(game.size.x * 0.85, 250), Dir.left, kind: 5, type: EnemyType.wavy);
+    game.debugSpawnEnemy(Vector2(game.size.x * 0.72, 90), Dir.down, kind: 8);
+    for (var i = 0; i < 4; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await binding.takeScreenshot('14_enemies');
+    for (final e in List.of(game.enemies)) {
+      (e as dynamic).removeFromParent();
+    }
+    game.enemies.clear();
+
     // ポーズ → 再開
     await tester.tap(find.byKey(const Key('pauseButton')));
     await tester.pump(const Duration(milliseconds: 500));

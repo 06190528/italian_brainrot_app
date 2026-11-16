@@ -53,6 +53,7 @@ void main() {
     await tester.tap(find.byKey(const Key('modeNormal')));
     // ゲーム画面はFlameが動き続けるので pumpAndSettle は使わない
     await tester.pump(const Duration(seconds: 2));
+    await settle(tester); // 画面遷移のアニメーションが終わってから撮る
     await binding.takeScreenshot('04_game_ready');
     await tester.tap(find.byKey(const Key('startButton')));
     await tester.pump(const Duration(milliseconds: 500));

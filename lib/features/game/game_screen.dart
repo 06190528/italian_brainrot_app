@@ -171,7 +171,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       ),
       // スキル(割れたバリアは、再生までの進み具合を出す)
       Positioned(
-        top: 62,
+        bottom: 24,
         left: 8,
         child: ListenableBuilder(
           listenable: Listenable.merge([session.barrier, session.barrierProgress]),
