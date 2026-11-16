@@ -1,9 +1,16 @@
-Italian Brainrot Daisensou is a simple swipe-controlled action game. No account or login is required.
+Italian Brainrot Daisensou is a swipe-controlled action game. No account or login is required.
 
-How to play: swipe to move the character and dodge the enemies crossing the screen. Collect coins to open the gacha (coins only; there are no in-app purchases). Hard mode unlocks after scoring 300 points in Normal mode.
+Build 2 changes (response to Guideline 4.3 / 4.2.6): every character has a skill (Barrier, Magnet, Fever Boost, Lucky Drop or Mini Body); enemies now move in three ways (straight, wavy, chasing); the home screen is a 110-slot collection book with a coin bonus; background, gacha machine, items and HUD were redrawn.
+How to see it quickly:
+1. Home: the collection book (many "?" slots with rarity and skill icons) and the skill of the selected character (the starting character has Barrier).
+2. Tap Start > Normal: the skill card is shown before the game begins. A blue bubble around the character absorbs one hit.
+3. Wavy enemies (purple dashed ring) appear from 5 points; chasing enemies (red ring and "!") from 15 points.
+4. Gacha (top right on Home): the starting 20 coins allow two spins; each result shows the skill. Hard mode unlocks after scoring 300 points in Normal mode.
+
+How to play: swipe to move the character and dodge the enemies crossing the screen. Collect coins to open the gacha (coins only; there are no in-app purchases).
 
 Ads: the app shows Google AdMob banner and rewarded ads (non-personalized ads only; no App Tracking Transparency). In the EEA/UK, a consent form (Google UMP) is shown on first launch.
 
 Ranking: in Hard mode the app sends the player's display name (max 12 characters, default "Player"), the score, and a random per-install ID to Firebase Firestore. The display name is shown to other players on the ranking screen. No other personal data is collected.
 
-Characters are fan-made meme characters. We will promptly remove any asset on request from the rights holder.
+Characters are fan-made meme characters, declared as third-party content in App Store Connect. We will promptly remove any asset on request from the rights holder.

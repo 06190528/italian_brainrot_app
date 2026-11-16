@@ -1,0 +1,37 @@
+Thank you for the review. I have made substantial changes to the game since the rejected build (1.0.0 build 1) and replaced the build with 1.0.0 (2). Answers to your questions:
+
+1. What the app does
+Italian Brainrot Daisensou is a short-session action game controlled by swiping. The player moves a character around the screen and dodges enemies that cross it; each enemy that leaves the screen scores a point. Normal mode ends at 300 points; Hard mode is endless and feeds an online ranking. Coins earned in play (or by watching a rewarded ad) are spent on a gacha that unlocks one of 110 characters. There are no in-app purchases and no accounts. It is a casual way to pass a few minutes; I do not claim it solves a larger problem.
+What is new in build 2:
+- Every character has one of five skills (Barrier, Magnet, Fever Boost, Lucky Drop, Mini Body). The skill type depends on the character; its strength depends on the character's rarity (1-5 stars). The starting character has Barrier, which absorbs one hit and regrows after a number of dodges.
+- Three enemy movement types: straight, wavy (sine-wave path) and chasing (steers toward the player until it passes). Wavy enemies appear from 5 points, chasers from 15 points.
+- The home screen is now a 110-slot collection book; unowned slots show rarity and skill type. Owning more characters raises the coins earned per run (+10% at 10 characters up to +50% at 110).
+- Redrawn background, gacha machine, items and HUD; a credits screen.
+
+2. Intended user
+Casual mobile players (the app's age rating is 13+) who enjoy short sessions and collecting characters from the "Italian brainrot" meme.
+
+3. Gap in the market
+I have not surveyed every app and I am not claiming an unmet market need. My intent is that the per-character skills, mixed enemy movement and collection bonus make the game play differently depending on which characters the player has collected.
+
+4. Beta testing
+I did not run an external beta, so I have no user feedback to cite. Before submission I ran: unit tests, rule tests for each skill and enemy type, a bot-driven difficulty simulation (40 runs per condition, comparing each skill against no skill), and integration tests of the full flow on an iOS simulator. The Android version (1.0.0) has been live on Google Play since 2026-11-11.
+
+5. Standalone or suite
+I also publish another game, "Cat Meme Daisensou" (猫ミーム大戦争), which uses the same basic dodge-the-crossing-enemies loop with a different theme. This app is a separate title with a different character set and, as of build 2, different rules (items 1 above). Those mechanics do not exist in the other app.
+
+6. Why not a feature or content addition to the other app
+The other app has a different theme and audience, and its own ranking. The new mechanics here (skills, enemy types, collection bonus) change how the game is played, so adding them to the existing app would alter it for its current players. I understand you may judge differently; that is why I am describing the differences above.
+
+7. Shared code, frameworks or assets with other apps on my account
+- Assets: none. I compared every image and audio file in this app against the other app by checksum; there are no identical files, and the shared-asset check runs in my release gate.
+- Code: the game loop (moving the player, enemies crossing the screen, scoring) was ported and rewritten from the other app and follows the same basic idea; it is not copied as files. Skills, enemy movement types, the collection book, the gacha and the ranking service are new or rewritten for this app.
+- Frameworks: Flutter, Flame, Google Mobile Ads (AdMob) and the Firestore REST API, as standard dependencies.
+
+8. Shared code, SDKs or content libraries with third-party apps
+No third-party app code is used. Sound effects and music are CC0 (Kenney, OpenGameArt); the background photo is CC BY 4.0 (Bernard Gagnon, Wikimedia Commons) and is credited in Settings > Credits. The character images are fan/meme characters; in App Store Connect I have declared that the app contains third-party content.
+
+9. Client or third party
+No. The app was not made for a client or partner, and it is not built from a commercial template or app generation service. It is built with Flutter and Flame and submitted under my own account.
+
+Notes for review are in the App Review Information field (how to see the skills and the enemy types quickly). Thank you for your time.

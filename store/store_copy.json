@@ -1,11 +1,35 @@
 {
   "theme": "/Users/kitano/pj/italian_brainrot_app/store/theme.json",
   "slides": [
-    {"image": "shots/01_home.png", "title": "キャラを集めて\nいっしょに出撃", "sub": "イタリアンブレインロット110体"},
-    {"image": "shots/02_gatya.png", "title": "10コインで\nガチャを回そう", "sub": "新しいキャラが仲間に"},
-    {"image": "shots/03_fever.png", "title": "かわし続けて\nフィーバー!", "sub": "オーラをまとって一気に突破"},
-    {"image": "shots/04_hard.png", "title": "ハードは\nエンドレス", "sub": "どこまでかわせるか挑戦"},
-    {"image": "shots/05_ranking.png", "title": "みんなと\nスコアを競う", "sub": "毎日更新の順位表"}
+    {
+      "image": "shots/01_home.png",
+      "title": "キャラを集めて\n図鑑をコンプリート",
+      "sub": "全110体。集めるほどコインが増える"
+    },
+    {
+      "image": "shots/02_gatya.png",
+      "title": "10コインで\nガチャを回そう",
+      "sub": "新しいキャラが仲間に"
+    },
+    {
+      "image": "shots/03_skill.png",
+      "title": "キャラごとに\n固有スキル",
+      "sub": "バリア・マグネットなど5種類"
+    },
+    {
+      "image": "shots/04_enemies.png",
+      "title": "蛇行も追尾も\nかわせ!",
+      "sub": "動きの違う敵が登場"
+    },
+    {
+      "image": "shots/05_fever.png",
+      "title": "かわし続けて\nフィーバー!",
+      "sub": "オーラをまとって一気に突破"
+    }
   ],
-  "feature": {"title": "かわして、\nフィーバー!", "sub": "イタリアンブレインロット", "image": 2}
+  "feature": {
+    "title": "かわして、\nフィーバー!",
+    "sub": "イタリアンブレインロット",
+    "image": 4
+  }
 }
