@@ -4,6 +4,8 @@ import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
 import 'package:flutter/services.dart';
 
+import 'skill.dart';
+
 /// assets/data/characters.json の1件。並び順(id)が、敵の出現順=強さの順。
 class CharacterDef {
   final int id;
@@ -39,6 +41,9 @@ class CharacterDef {
         frames: (j['frames'] ?? 1) as int,
         stepTime: ((j['stepTime'] ?? 0.1) as num).toDouble(),
       );
+
+  /// このキャラのスキル(種類は id % 5、強さはレア度)。
+  Skill get skill => Skill.of(id, rarity);
 
   /// スプライトシートからアニメーションを作る(画像はFlameのキャッシュ)。
   Future<SpriteAnimation> loadAnimation() async {

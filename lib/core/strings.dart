@@ -57,4 +57,18 @@ class S {
   static String get fever => _t('フィーバー!', 'FEVER!');
   static String get tapToUse => _t('タップで必殺!', 'Tap!');
   static String get adNotReady => _t('広告を準備中です', 'Ad is not ready');
+
+  // スキル
+  static String get skill => _t('スキル', 'Skill');
+  static String get skillBarrier => _t('バリア', 'Barrier');
+  static String get skillMagnet => _t('マグネット', 'Magnet');
+  static String get skillFeverBoost => _t('フィーバーブースト', 'Fever Boost');
+  static String get skillLuckyDrop => _t('ラッキードロップ', 'Lucky Drop');
+  static String get skillMiniBody => _t('ちびボディ', 'Mini Body');
+  static String skillBarrierDesc(int n) => _t('はじめに泡が1枚。敵に1回触れてもOK。$n体かわすと再生', 'Starts with a bubble that blocks 1 hit. Regrows after $n dodges');
+  static String skillMagnetDesc(int p) => _t('アイテムを引き寄せる(範囲 $p%)', 'Pulls items toward you (range $p%)');
+  static String skillFeverBoostDesc(int p) => _t('フィーバーまでの数が$p%へる', 'Fever needs $p% fewer dodges');
+  static String skillLuckyDropDesc(int n) => _t('$n体かわすごとにアイテムが出る(ふつうは15)', 'An item drops every $n dodges (normally 15)');
+  static String skillMiniBodyDesc(int p) => _t('からだが$p%小さくなる', 'Your body is $p% smaller');
+  static String get shieldBroken => _t('バリアがわれた!', 'Barrier broke!');
 }
