@@ -1,5 +1,12 @@
 # リリース作業の引き継ぎ(2026-11-09 時点)
 
+> **2026-11-16: iOSが 4.3(a)/4.2.6 で却下(11/14)→ 修正して再提出済み(11/16 19:34)**。Androidも同じ 1.0.0+2 をPlayに提出(審査中)。却下文: `~/pj/tools/chrome-hub/state/review_thread_italianbrainrot.txt`。
+> - 原因: 公開済みの `saibai_men_app` と、ルール・素材が同じ(リスキンに見えた)。
+> - 対応(コミット `c1ffecd`〜): 元アプリと同一の素材(画像6・音4)を全部置き換え(コード描画・CC0の音。`tools/check_shared_assets.sh` でmd5一致0件をゲートで保つ)/ 全110キャラのスキル5種(`lib/data/skill.dart`。id%5で種類、レア度で強さ)/ 敵の動き(蛇行・追尾)/ ホームの図鑑化+図鑑ボーナス(コイン+10〜50%)/ クレジット画面(CC BY表記)。バランスの基準と結果は `docs/balance_baseline.md`。
+> - 提出物: ビルド 1.0.0+2(IPA差し替え済み)・掲載文・スクショ5枚・審査メモ・動画(`store/review_demo/recording_attach.mp4`)・英語の返信(`store/appeal_reply.txt`。返信済み)。
+> - 次: 審査結果の確認(`review_status.py italianbrainrot`)。再度却下されたら、質問6が示す「既存アプリ(猫ミーム大戦争)への統合」も選択肢。通ったら、AdMobの `link`・`admob_verify`。
+> - 教訓: ゲートのAABビルドを、統合テストと並列にすると、`GeneratedPluginRegistrant.java` を書き換え合って落ちる(直した)。chrome-hub の `release.py --stage listing` は、Playのカテゴリ入力で止まるので、却下後の更新は関数を直接呼んだ(ASC: `fill_app_info`/`fill_version`/`upload_screenshots(replace=True)`/`replace_build`/`set_review_info`(古い添付は「削除」ボタンで消してから)。返信・再提出: `review_thread.py reply --send` / `resubmit`。Play: `fill_store_listing`/`upload_listing_assets`/`create_release(version_code=2)`/`publish_release`)。
+
 > **2026-11-10 更新: ASC・Play とも審査に提出済み**(ビルド 1.0.0+1、ゲート通過コミット `97819d7`)。残りは、審査結果の確認・公開後の AdMob `link`/`admob_verify`・ターゲット層とデータ申告の追加(`docs/play_target_audience_handoff.md`)。以下は、提出前の記録。
 
 > **2026-11-12 14:20 の確認(読むだけ)**: iOS 1.0.0 は **審査待ち**(提出 11/10 火 10:28)。Android は **公開済み**(最新リリース24時間前)。Play の配信国は、EEA・英国が外れていることを確認(`sites.playstore_countries italianbrainrot --dry-run` → 変更なし)。AdMob は両OSとも「要審査・広告配信を制限」。**AdMob の Android 紐づけは、ストア検索が0件で未実施**(公開直後は、検索に出るまで時間がかかる)。再試行: `cd ~/pj/tools/chrome-hub && .venv/bin/python -m sites.admob link "イタリアンブレインロット大戦争" Android com.okinnnikudekao.italianbrainrot --dry-run`(通ったら `--dry-run` を外す)。iOS は、承認後に `https://apps.apple.com/jp/app/id6832495202` で紐づけ。
