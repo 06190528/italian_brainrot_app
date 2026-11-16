@@ -1,18 +1,18 @@
-Thank you for the review. I made substantial changes since the rejected build (1.0.0, build 1) and replaced it with build 2. My answers:
+I made substantial changes since the rejected build (1.0.0, build 1) and replaced it with build 2. My answers:
 
 1. What the app does
-A short-session action game controlled by swiping: move a character and dodge enemies crossing the screen; each enemy that leaves the screen scores a point. Normal mode ends at 300 points; Hard mode is endless with an online ranking. Coins (earned in play or from a rewarded ad) buy a gacha that unlocks one of 110 characters. No in-app purchases, no accounts. It is a casual way to pass a few minutes; I do not claim it solves a larger problem.
+A short-session action game controlled by swiping: move a character and dodge enemies crossing the screen; each enemy that leaves the screen scores a point. Normal mode ends at 300 points; Hard mode is endless with an online ranking. Coins (earned in play or from a rewarded ad) buy a gacha that unlocks one of 110 characters. No in-app purchases, no accounts. It is casual entertainment; I do not claim it solves a larger problem.
 New in build 2:
 - Every character has one of five skills (Barrier, Magnet, Fever Boost, Lucky Drop, Mini Body). The type depends on the character, the strength on its rarity (1-5 stars). The starting character has Barrier: it absorbs one hit and regrows after a number of dodges.
 - Three enemy movements: straight, wavy (sine path) and chasing (steers toward the player until it passes). Wavy enemies appear from 5 points, chasers from 15.
 - The home screen is a 110-slot collection book (unowned slots show rarity and skill type). Owning more characters raises the coins earned per run, from +10% (10 characters) to +50% (110).
-- Redrawn background, gacha machine, items and HUD; a credits screen.
+- Redrawn background, gacha machine, items and HUD; credits screen.
 
 2. Intended user
 Casual mobile players (age rating 13+) who enjoy short sessions and collecting "Italian brainrot" meme characters.
 
 3. Gap in the market
-I have not surveyed every app and do not claim an unmet market need. My intent is that per-character skills, mixed enemy movement and the collection bonus make the game play differently depending on which characters a player has collected.
+I have not surveyed every app and do not claim an unmet market need. My intent is that skills, mixed enemy movement and the collection bonus make the game play differently depending on the characters collected.
 
 4. Beta testing
 No external beta, so I have no user feedback to cite. Before submission I ran unit tests, rule tests for each skill and enemy type, a bot-driven difficulty simulation (40 runs per condition, each skill vs. no skill), and integration tests of the full flow on an iOS simulator. The Android version (1.0.0) has been live on Google Play since 2026-11-11.
@@ -21,12 +21,12 @@ No external beta, so I have no user feedback to cite. Before submission I ran un
 This is a standalone title. On my account I also publish "Cat Meme Daisensou" (猫ミーム大戦争), which uses the same basic dodge-the-crossing-enemies loop with a different theme, plus unrelated exam-study apps. This app is a separate title with a different character set and, in build 2, different rules (the mechanics listed in 1, which the other app does not have).
 
 6. Why not a feature of the other app
-It has a different theme, audience and ranking, and the new mechanics change how the game is played, so adding them there would alter it for its current players. I understand you may judge differently, which is why I describe the differences above.
+It has a different theme, audience and ranking, and the new mechanics change how the game is played, so adding them there would alter it for its current players. I understand you may judge differently.
 
 7. Shared code or assets with other apps on my account
-- Assets: none. I compared every image and audio file with the other app by checksum; no file is identical (this check is part of my release gate).
+- Assets: none. I compared every image and audio file with the other app by checksum; no file is identical.
 - Code: the basic game loop (player movement, enemies crossing the screen, scoring) was ported and rewritten from the other app and follows the same idea; files are not copied. Skills, enemy movements, the collection book, gacha and ranking service are new or rewritten.
-- Ads helper: the consent (UMP) and AdMob initialization helper follows the same pattern as in my exam-study apps (written separately for this app).
+- Ads helper: the consent (UMP) and AdMob initialization helper follows the same pattern as in my exam-study apps.
 - Frameworks: Flutter, Flame, Google Mobile Ads and the Firestore REST API.
 
 8. Shared code, SDKs or content libraries with third-party apps
@@ -35,4 +35,4 @@ No third-party app code. Sound effects and music are CC0 (Kenney, OpenGameArt); 
 9. Client or third party
 No. It was not made for a client or partner, and it is not built from a commercial template or app generation service. It is built with Flutter and Flame and submitted under my own account.
 
-The App Review Information notes explain how to see the skills and enemy types quickly. Thank you.
+The review notes explain how to see the skills and enemy types quickly. Thank you.
