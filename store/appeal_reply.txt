@@ -18,7 +18,7 @@ I have not surveyed every app and do not claim an unmet market need. My intent i
 No external beta, so I have no user feedback to cite. Before submission I ran unit tests, rule tests for each skill and enemy type, a bot-driven difficulty simulation (40 runs per condition, each skill vs. no skill), and integration tests of the full flow on an iOS simulator. The Android version (1.0.0) has been live on Google Play since 2026-11-11.
 
 5. Standalone or suite
-I also publish "Cat Meme Daisensou" (猫ミーム大戦争), which uses the same basic dodge-the-crossing-enemies loop with a different theme. This app is a separate title with a different character set and, in build 2, different rules (the mechanics listed in 1, which the other app does not have).
+This is a standalone title. On my account I also publish "Cat Meme Daisensou" (猫ミーム大戦争), which uses the same basic dodge-the-crossing-enemies loop with a different theme, plus unrelated exam-study apps. This app is a separate title with a different character set and, in build 2, different rules (the mechanics listed in 1, which the other app does not have).
 
 6. Why not a feature of the other app
 It has a different theme, audience and ranking, and the new mechanics change how the game is played, so adding them there would alter it for its current players. I understand you may judge differently, which is why I describe the differences above.
@@ -26,6 +26,7 @@ It has a different theme, audience and ranking, and the new mechanics change how
 7. Shared code or assets with other apps on my account
 - Assets: none. I compared every image and audio file with the other app by checksum; no file is identical (this check is part of my release gate).
 - Code: the basic game loop (player movement, enemies crossing the screen, scoring) was ported and rewritten from the other app and follows the same idea; files are not copied. Skills, enemy movements, the collection book, gacha and ranking service are new or rewritten.
+- Ads helper: the consent (UMP) and AdMob initialization helper follows the same pattern as in my exam-study apps (written separately for this app).
 - Frameworks: Flutter, Flame, Google Mobile Ads and the Firestore REST API.
 
 8. Shared code, SDKs or content libraries with third-party apps
