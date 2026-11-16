@@ -75,5 +75,4 @@ class S {
   static String skillFeverBoostDesc(int p) => _t('フィーバーまでの数が$p%へる', 'Fever needs $p% fewer dodges');
   static String skillLuckyDropDesc(int n) => _t('$n体かわすごとにアイテムが出る(ふつうは15)', 'An item drops every $n dodges (normally 15)');
   static String skillMiniBodyDesc(int p) => _t('からだが$p%小さくなる', 'Your body is $p% smaller');
-  static String get shieldBroken => _t('バリアがわれた!', 'Barrier broke!');
 }

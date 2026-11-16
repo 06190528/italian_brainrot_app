@@ -46,11 +46,12 @@ class GameSession {
   }
 }
 
-/// ルール(元アプリ saibai_men_app と同じ):
-/// - スワイプでキャラを動かす。敵は画面の端から端へ横切る。
-/// - 敵に触れたらゲームオーバー。触れずに画面外へ出せばスコア+1。
-/// - 15点ごとにアイテムが降ってくる(必殺技が1回使える)。
+/// ルール:
+/// - スワイプでキャラを動かす。敵は画面の端から端へ横切る(直進・蛇行・追尾の3種類)。
+/// - 敵に触れたらゲームオーバー(バリアがあれば、1回かばう)。触れずに画面外へ出せばスコア+1。
+/// - 一定数かわすごとに、アイテムの星が降ってくる(必殺技が1回使える。間隔は、スキル「ラッキードロップ」で短くなる)。
 /// - 一定数かわすとフィーバー(敵に1回触れても壊れるだけ)。
+/// - 出撃キャラのスキル(バリア・マグネット・フィーバーブースト・ラッキードロップ・ちびボディ)が、ゲームに効く。
 class BrainrotGame extends FlameGame with PanDetector {
   final GameMode mode;
   final List<CharacterDef> characters;
@@ -74,8 +75,7 @@ class BrainrotGame extends FlameGame with PanDetector {
 
   /// 出撃キャラのスキル。
   late final Skill skill = characters[playerId].skill;
-  bool get _is => useSkill;
-  bool _has(SkillType t) => _is && skill.type == t;
+  bool _has(SkillType t) => useSkill && skill.type == t;
 
   final _rng = Random();
   // ignore: library_private_types_in_public_api
@@ -406,6 +406,7 @@ class BrainrotGame extends FlameGame with PanDetector {
   void _finish({required bool clear}) {
     if (_over) return;
     _over = true;
+    _invuln = 0; // 結果画面の後ろで、自機が点滅し続けないように
     session.active.value = false;
     _clearEnemies(explode: false);
     for (final i in List<_Item>.from(items)) {
@@ -644,17 +645,7 @@ class _Enemy extends SpriteAnimationComponent with HasGameReference<BrainrotGame
       Dir.left => position.x < -1,
       Dir.none => false,
     };
-    final base = _base;
-    final outBase = type == EnemyType.wavy && base != null
-        ? switch (dir) {
-            Dir.down => base.y > s.y + 1,
-            Dir.up => base.y < -1,
-            Dir.right => base.x > s.x + 1,
-            Dir.left => base.x < -1,
-            Dir.none => false,
-          }
-        : out;
-    if (out || outBase) {
+    if (out) {
       removeFromParent();
       game._enemyPassed(this);
     }
