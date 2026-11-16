@@ -84,7 +84,18 @@ void main() {
     expect(game.session.score.value, 1 + alive);
     expect(game.enemies, isEmpty);
 
-    // 敵に触れてゲームオーバー
+    // 最初のキャラ(id 0)はバリア持ち: 1回目の接触は、泡が割れるだけで続けられる
+    expect(game.session.barrier.value, true);
+    await binding.takeScreenshot('05b_barrier');
+    game.debugSpawnEnemy(game.debugPlayerPosition, Dir.down);
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(game.session.barrier.value, false);
+    expect(find.byKey(const Key('resultTitle')), findsNothing);
+    // 割れた直後の1秒(無敵)が過ぎてから、敵に触れてゲームオーバー
+    for (var i = 0; i < 14; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
     game.debugSpawnEnemy(game.debugPlayerPosition, Dir.down);
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(milliseconds: 300));

@@ -41,6 +41,34 @@ void paintAura(Canvas canvas, Offset c, double r, double t) {
   canvas.drawCircle(c, r * 0.55, Paint()..color = const Color(0x44FFEB3B)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10));
 }
 
+/// バリア(泡)。自機を包む水色の球。
+void paintBarrier(Canvas canvas, Offset c, double r, double t) {
+  final pulse = 1 + sin(t * 4) * 0.04;
+  canvas.drawCircle(c, r * pulse, Paint()..color = const Color(0x3329B6F6));
+  canvas.drawCircle(
+      c,
+      r * pulse,
+      Paint()
+        ..color = const Color(0xCC4FC3F7)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3);
+  canvas.drawArc(Rect.fromCircle(center: c, radius: r * pulse * 0.78), pi * 1.1, pi * 0.35, false,
+      Paint()..color = Colors.white70..style = PaintingStyle.stroke..strokeWidth = 3..strokeCap = StrokeCap.round);
+}
+
+/// マグネットの範囲(点線の輪)。
+void paintMagnetRing(Canvas canvas, Offset c, double r, double t) {
+  const n = 36;
+  final paint = Paint()
+    ..color = const Color(0x66E040FB)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 2;
+  for (var i = 0; i < n; i += 2) {
+    final a0 = t * 0.6 + i * 2 * pi / n;
+    canvas.drawArc(Rect.fromCircle(center: c, radius: r), a0, 2 * pi / n, false, paint);
+  }
+}
+
 /// 星だけを描くアイコン(ボタン用)。
 class StarIcon extends StatelessWidget {
   final double size;

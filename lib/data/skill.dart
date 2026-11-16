@@ -17,7 +17,7 @@ class Skill {
   int get _i => level - 1;
 
   /// バリア: 何体かわすと再生するか。
-  int get barrierRegen => const [100, 90, 80, 70, 60][_i];
+  int get barrierRegen => const [110, 100, 90, 80, 70][_i];
 
   /// マグネット: アイテムを引き寄せる半径(画面の幅に対する割合)。
   double get magnetRadius => const [0.22, 0.26, 0.30, 0.34, 0.38][_i];

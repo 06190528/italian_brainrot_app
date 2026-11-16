@@ -10,6 +10,7 @@ import '../../core/art.dart';
 import '../../core/audio_service.dart';
 import '../../core/constants.dart';
 import '../../data/character.dart';
+import '../../data/skill.dart';
 
 enum GameMode {
   normal(1),
@@ -27,6 +28,8 @@ class GameSession {
   final feverCount = ValueNotifier<int>(0);
   final fever = ValueNotifier<bool>(false);
   final deathblows = ValueNotifier<int>(1);
+  final barrier = ValueNotifier<bool>(false); // バリア(泡)があるか
+  final barrierProgress = ValueNotifier<double>(0); // 再生までの進み具合(0〜1)
   final active = ValueNotifier<bool>(false);
 
   void reset() {
@@ -34,6 +37,8 @@ class GameSession {
     feverCount.value = 0;
     fever.value = false;
     deathblows.value = 1;
+    barrier.value = false;
+    barrierProgress.value = 0;
     active.value = false;
   }
 }
@@ -51,6 +56,9 @@ class BrainrotGame extends FlameGame with PanDetector {
   final void Function(int score) onGameOver;
   final void Function(int score) onClear;
 
+  /// false にすると、スキルを使わない(難易度のシミュレーションで、差を測るため)。
+  final bool useSkill;
+
   BrainrotGame({
     required this.mode,
     required this.characters,
@@ -58,7 +66,13 @@ class BrainrotGame extends FlameGame with PanDetector {
     required this.session,
     required this.onGameOver,
     required this.onClear,
+    this.useSkill = true,
   });
+
+  /// 出撃キャラのスキル。
+  late final Skill skill = characters[playerId].skill;
+  bool get _is => useSkill;
+  bool _has(SkillType t) => _is && skill.type == t;
 
   final _rng = Random();
   // ignore: library_private_types_in_public_api
@@ -80,7 +94,22 @@ class BrainrotGame extends FlameGame with PanDetector {
   bool autoSpawn = true;
 
   int get _speedStepEvery => mode == GameMode.normal ? 20 : 30;
-  int get feverNeeded => mode == GameMode.normal ? 20 : 50;
+  int get _baseFever => mode == GameMode.normal ? 20 : 50;
+  int get feverNeeded => _has(SkillType.feverBoost) ? skill.feverNeeded(_baseFever) : _baseFever;
+
+  /// アイテムが出る間隔(かわした数)。ラッキードロップで短くなる。
+  int get itemEvery => _has(SkillType.luckyDrop) ? skill.itemEvery : Skill.defaultItemEvery;
+
+  /// 自機の大きさの倍率(ちびボディで小さくなる)。
+  double get bodyScale => _has(SkillType.miniBody) ? skill.bodyScale : 1.0;
+
+  /// マグネットの半径(px)。0なら無し。
+  double get magnetRadiusPx => _has(SkillType.magnet) ? skill.magnetRadius * size.x : 0;
+
+  // バリア: 泡が割れた直後の無敵(秒)
+  double _invuln = 0;
+  bool get invulnerable => _invuln > 0;
+  int _barrierProgress = 0;
 
   @override
   Color backgroundColor() => const Color(0xFF000000);
@@ -135,6 +164,9 @@ class BrainrotGame extends FlameGame with PanDetector {
     _over = false;
     _initDifficulty();
     session.reset();
+    _invuln = 0;
+    _barrierProgress = 0;
+    session.barrier.value = _has(SkillType.barrier);
     session.active.value = true;
     player.position = size / 2;
     player.direction = Dir.none;
@@ -154,6 +186,7 @@ class BrainrotGame extends FlameGame with PanDetector {
   /// 広告を見て続きから。敵を全部消して、その場で再開する。
   void continueGame() {
     _over = false;
+    _invuln = 1.0; // 続きの直後に、すぐ触れて終わらないように
     _clearEnemies(explode: false);
     player.visible = true;
     session.active.value = true;
@@ -164,6 +197,7 @@ class BrainrotGame extends FlameGame with PanDetector {
   @override
   void update(double dt) {
     super.update(dt);
+    if (dt > 0 && session.active.value && _invuln > 0) _invuln = max(0, _invuln - dt);
     if (dt == 0 || !session.active.value || _over || !autoSpawn) return;
     _timer += dt;
     if (_timer >= spawnInterval) {
@@ -255,10 +289,12 @@ class BrainrotGame extends FlameGame with PanDetector {
         x.speed = enemySpeed;
       }
       player.speed = enemySpeed * 1.3;
-    } else if (s % 15 == 5) {
-      _addItem();
+    }
+    if (s % itemEvery == 5 && s % _speedStepEvery != _speedStepEvery - 1) _addItem();
+    if (s % 15 == 5 && s % _speedStepEvery != _speedStepEvery - 1) {
       if (enemyKinds < min(characters.length - 1, maxEnemyKinds)) enemyKinds++;
     }
+    _advanceBarrier(1);
     _afterScore();
   }
 
@@ -284,8 +320,50 @@ class BrainrotGame extends FlameGame with PanDetector {
       session.fever.value = false;
       session.feverCount.value = 0;
       AudioService.instance.playBgm(AudioService.bgmMain);
+    } else if (session.barrier.value) {
+      // バリアが、1回かばってくれる(割れた直後の1秒は、無敵)
+      session.barrier.value = false;
+      _barrierProgress = 0;
+      session.barrierProgress.value = 0;
+      _invuln = 1.0;
+      add(_Explosion(player.position.clone(), small: true));
+      AudioService.instance.hitSoft();
     } else {
       _finish(clear: false);
+    }
+  }
+
+  /// バリアの再生: n体かわすごとに進み、必要数に達したら泡が戻る(割れている間だけ)。
+  void _advanceBarrier(int n) {
+    if (!_has(SkillType.barrier) || session.barrier.value) return;
+    _barrierProgress += n;
+    final need = skill.barrierRegen;
+    if (_barrierProgress >= need) {
+      _barrierProgress = 0;
+      session.barrier.value = true;
+    }
+    session.barrierProgress.value = session.barrier.value ? 0 : _barrierProgress / need;
+  }
+
+  @visibleForTesting
+  double debugAddItem(Vector2 pos) {
+    final it = _Item(enemySpeed * 0.5)..position = pos;
+    items.add(it);
+    add(it);
+    return pos.distanceTo(player.position);
+  }
+
+  @visibleForTesting
+  double debugItemDistance() => items.isEmpty ? -1 : items.first.position.distanceTo(player.position);
+
+  @visibleForTesting
+  void debugAdvanceBarrier(int n) => _advanceBarrier(n);
+
+  @visibleForTesting
+  void debugTick(double seconds) {
+    const dt = 1 / 60;
+    for (var t = 0.0; t < seconds; t += dt) {
+      update(dt);
     }
   }
 
@@ -303,6 +381,7 @@ class BrainrotGame extends FlameGame with PanDetector {
     _clearEnemies(explode: true);
     session.score.value += n;
     if (!session.fever.value) session.feverCount.value += n;
+    _advanceBarrier(n);
     AudioService.instance.special();
     _afterScore();
   }
@@ -400,14 +479,20 @@ class _Player extends SpriteAnimationComponent with HasGameReference<BrainrotGam
     animation = await def.loadAnimation();
     final g = findGame(); // 読み込み中に外されたら、何もしない
     if (g == null) return;
-    size = Vector2.all(g.size.y / 13);
+    size = Vector2.all(g.size.y / 13 * game.bodyScale);
   }
 
   @override
   void render(Canvas canvas) {
     if (!visible) return;
+    final c = Offset(size.x / 2, size.y / 2);
+    // 割れた直後の無敵の間は、点滅する
+    if (game.invulnerable && (_auraT * 12).floor().isOdd) return;
     super.render(canvas);
-    if (game.session.fever.value) paintAura(canvas, Offset(size.x / 2, size.y / 2), size.x * 1.1, _auraT);
+    if (game.session.fever.value) paintAura(canvas, c, size.x * 1.1, _auraT);
+    if (game.session.barrier.value) paintBarrier(canvas, c, size.x * 0.85, _auraT);
+    final m = game.magnetRadiusPx;
+    if (m > 0) paintMagnetRing(canvas, c, m, _auraT);
   }
 
   @override
@@ -453,7 +538,7 @@ class _Enemy extends SpriteAnimationComponent with HasGameReference<BrainrotGame
     if (dt == 0 || !game.session.active.value) return; // update(0) では進めない(上と同じ理由)
     final p = game.player;
     final hit = (size.x + p.size.x) * 0.3;
-    if (position.distanceTo(p.position) <= hit) {
+    if (!game.invulnerable && position.distanceTo(p.position) <= hit) {
       game._playerTouched(this);
       return;
     }
@@ -489,7 +574,14 @@ class _Item extends PositionComponent with HasGameReference<BrainrotGame> {
     super.update(dt);
     if (dt == 0 || !game.session.active.value) return; // update(0) では進めない
     _t += dt;
-    position.y += speed * dt;
+    final m = game.magnetRadiusPx;
+    final toPlayer = game.player.position - position;
+    if (m > 0 && toPlayer.length < m) {
+      // マグネット: 範囲に入ったアイテムを、敵の1.2倍の速さで自機へ引き寄せる
+      position.add(toPlayer.normalized() * (game.enemySpeed * 1.2 * dt));
+    } else {
+      position.y += speed * dt;
+    }
     if (position.distanceTo(game.player.position) <= (size.length / 2 + game.player.size.length / 2) / 1.7) {
       game._itemTaken(this);
     } else if (position.y > game.size.y + size.y) {
