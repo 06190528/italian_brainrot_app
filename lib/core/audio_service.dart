@@ -43,11 +43,11 @@ class AudioService {
   Future<void> gatya() => se('gatya.mp3');
   Future<void> getCharacter() => se('get_character.mp3');
   Future<void> coin() => se('get_coin.mp3');
-  Future<void> item() => se('getItemSound.mp3');
-  Future<void> special() => se('specialMove.mp3');
+  Future<void> item() => se('get_item.mp3');
+  Future<void> special() => se('special_move.mp3');
   Future<void> hit() => se('hit_1.mp3');
   Future<void> hitSoft() => se('hit_2.mp3');
 
-  static const bgmMain = 'bgm.mp3';
-  static const bgmFever = 'fever_bgm.mp3';
+  static const bgmMain = 'bgm_main.mp3';
+  static const bgmFever = 'bgm_fever.mp3';
 }
