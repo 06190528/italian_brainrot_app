@@ -90,7 +90,7 @@ class BrainrotGame extends FlameGame with PanDetector {
   Future<void> onLoad() async {
     // 初回のデコードで、プレイ中に読み込みが走らないよう、先に読み込む(読み込み中の部品を、更新の途中で外すと例外になる)
     await Flame.images.loadAll(['orig/energy_bullet.png', 'orig/ki_sprite.png']);
-    await add(_Background(await Flame.images.load('orig/background.png')));
+    await add(_Background());
     player = _Player(characters[playerId]);
     await add(player);
     player.position = size / 2;
@@ -335,11 +335,33 @@ class BrainrotGame extends FlameGame with PanDetector {
 
 // ---------------- 部品 ----------------
 
-/// 元アプリ(saibai_men_app)の背景と同じ: 画面いっぱいに伸ばした画像を2枚、縦に流す(速さは敵の半分)。
+/// 暖色の石畳を、コードで描く(画像は使わない)。縦に2枚つなげて流す(速さは敵の半分)。
+/// 石の並びは、起動時に1度だけ、画面に対する割合(0〜1)で決める(画面サイズが変わっても崩れない)。
 class _Background extends Component with HasGameReference<BrainrotGame> {
-  final Image image;
+  static const _rows = 14;
+  final List<(Rect, Color)> _stones = [];
   double _y = 0; // 0〜画面の高さ
-  _Background(this.image) : super(priority: -10);
+  _Background() : super(priority: -10) {
+    final rng = Random(7);
+    for (var r = 0; r < _rows; r++) {
+      // 行ごとに、石の幅をばらけさせ、右端でちょうど1.0になるようにそろえる
+      final widths = <double>[];
+      var sum = 0.0;
+      while (sum < 1.0) {
+        final w = 0.16 + rng.nextDouble() * 0.14;
+        widths.add(w);
+        sum += w;
+      }
+      final k = 1.0 / sum;
+      var x = 0.0;
+      for (final w in widths) {
+        final tone = rng.nextDouble();
+        final color = Color.lerp(const Color(0xFFD9A35F), const Color(0xFFB9783D), tone)!;
+        _stones.add((Rect.fromLTWH(x, r / _rows, w * k, 1 / _rows), color));
+        x += w * k;
+      }
+    }
+  }
 
   @override
   void update(double dt) {
@@ -351,11 +373,16 @@ class _Background extends Component with HasGameReference<BrainrotGame> {
   @override
   void render(Canvas canvas) {
     final s = game.size;
-    canvas.clipRect(Rect.fromLTWH(0, 0, s.x, s.y)); // 2枚目が、画面の外(ステータスバー・バナー広告の上)に描かれないように
-    final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
-    final paint = Paint()..filterQuality = FilterQuality.medium;
-    canvas.drawImageRect(image, src, Rect.fromLTWH(0, _y, s.x, s.y), paint);
-    canvas.drawImageRect(image, src, Rect.fromLTWH(0, _y - s.y, s.x, s.y), paint);
+    canvas.clipRect(Rect.fromLTWH(0, 0, s.x, s.y));
+    canvas.drawRect(Rect.fromLTWH(0, 0, s.x, s.y), Paint()..color = const Color(0xFF5A3B22)); // 目地
+    final fill = Paint();
+    for (final dy in [_y, _y - s.y]) {
+      for (final (r, c) in _stones) {
+        final rect = Rect.fromLTWH(r.left * s.x, dy + r.top * s.y, r.width * s.x, r.height * s.y).deflate(2);
+        fill.color = c;
+        canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(5)), fill);
+      }
+    }
   }
 }
 
