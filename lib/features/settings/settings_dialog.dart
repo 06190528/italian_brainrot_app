@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 import '../../core/audio_service.dart';
 import '../../core/strings.dart';
+import 'credits_dialog.dart';
 
 class SettingsDialog extends ConsumerStatefulWidget {
   const SettingsDialog({super.key});
@@ -43,6 +44,13 @@ class _SettingsDialogState extends ConsumerState<SettingsDialog> {
             AudioService.instance.enabled = v;
             if (!v) AudioService.instance.stopBgm();
           },
+        ),
+        ListTile(
+          key: const Key('creditsButton'),
+          contentPadding: EdgeInsets.zero,
+          title: Text(S.credits),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => showDialog(context: context, builder: (_) => const CreditsDialog()),
         ),
       ]),
       actions: [

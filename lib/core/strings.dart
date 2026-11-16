@@ -58,6 +58,8 @@ class S {
   static String get tapToUse => _t('タップで必殺!', 'Tap!');
   static String get adNotReady => _t('広告を準備中です', 'Ad is not ready');
 
+  static String get credits => _t('クレジット', 'Credits');
+
   // スキル
   static String get skill => _t('スキル', 'Skill');
   static String get skillBarrier => _t('バリア', 'Barrier');
