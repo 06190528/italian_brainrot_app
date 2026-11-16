@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
 import '../../core/ads/banner_ad_widget.dart';
+import '../../core/art.dart';
 import '../../core/ads/reward_ad.dart';
 import '../../core/audio_service.dart';
 import '../../core/strings.dart';
@@ -218,12 +219,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     height: 84,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.amber,
+                      color: const Color(0xFF3949AB),
                       border: Border.all(color: Colors.white, width: 4),
                       boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 8)],
                     ),
                     child: Stack(alignment: Alignment.center, children: [
-                      Image.asset('assets/images/orig/energy_icon.png', width: 48, height: 48, fit: BoxFit.cover),
+                      const StarIcon(size: 52),
                       Positioned(
                         right: 6,
                         bottom: 6,
@@ -343,7 +344,7 @@ class _FeverBar extends StatelessWidget {
             ),
           ),
         ),
-        Image.asset('assets/images/orig/saiazinn.png', width: w * 0.1, height: w * 0.1, fit: BoxFit.cover),
+        Icon(Icons.local_fire_department, size: w * 0.1, color: Colors.deepOrange),
       ]),
     ]);
   }

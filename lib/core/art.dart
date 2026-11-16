@@ -1,0 +1,57 @@
+import 'dart:math';
+import 'package:flutter/material.dart';
+
+/// コードで描く図形(画像素材を使わない)。ゲームの部品と、画面のアイコンで共有する。
+
+/// 金色の星(アイテム・必殺ボタン)。[rot] はラジアン。
+void paintStar(Canvas canvas, Offset c, double r, {double rot = 0}) {
+  final path = Path();
+  for (var i = 0; i < 10; i++) {
+    final rad = i.isEven ? r : r * 0.45;
+    final a = rot - pi / 2 + i * pi / 5;
+    final p = Offset(c.dx + cos(a) * rad, c.dy + sin(a) * rad);
+    i == 0 ? path.moveTo(p.dx, p.dy) : path.lineTo(p.dx, p.dy);
+  }
+  path.close();
+  canvas.drawCircle(c, r * 1.15, Paint()..color = const Color(0x55FFD54F)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
+  canvas.drawPath(path, Paint()..color = const Color(0xFFFFC107));
+  canvas.drawPath(
+      path,
+      Paint()
+        ..color = const Color(0xFFFF8F00)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = r * 0.12
+        ..strokeJoin = StrokeJoin.round);
+  canvas.drawCircle(c, r * 0.18, Paint()..color = const Color(0xFFFFF8E1));
+}
+
+/// フィーバー中のオーラ。[c] はオーラの中心、[t] は経過秒(脈動)。
+void paintAura(Canvas canvas, Offset c, double r, double t) {
+  for (var i = 0; i < 3; i++) {
+    final k = (t * 0.9 + i / 3) % 1.0;
+    final rad = r * (0.5 + k * 0.7);
+    canvas.drawCircle(
+        c,
+        rad,
+        Paint()
+          ..color = Color.fromARGB(((1 - k) * 150).toInt(), 255, 167, 38)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = r * 0.12 * (1 - k * 0.5));
+  }
+  canvas.drawCircle(c, r * 0.55, Paint()..color = const Color(0x44FFEB3B)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10));
+}
+
+/// 星だけを描くアイコン(ボタン用)。
+class StarIcon extends StatelessWidget {
+  final double size;
+  const StarIcon({super.key, this.size = 48});
+  @override
+  Widget build(BuildContext context) => CustomPaint(size: Size.square(size), painter: _StarPainter());
+}
+
+class _StarPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size s) => paintStar(canvas, s.center(Offset.zero), s.width * 0.42);
+  @override
+  bool shouldRepaint(covariant CustomPainter old) => false;
+}
