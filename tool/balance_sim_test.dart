@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_visible_for_testing_member
 // 難易度の目安をとる、ボットによる高速シミュレーション(実機の操作感の代わりではない)。
 // 使い方: flutter test tool/balance_sim_test.dart   (結果は print される。アサートは「動くこと」だけ)
+// 変えられる値(--dart-define=名前=値): REACTION(反応の遅れ秒) / TRIALS(試行回数。既定8) / PLAYER(プレイヤーのキャラid。既定0)
 // 実際のゲームのコード(BrainrotGame)をそのまま使い、画面を描かずに 1/60 秒ずつ進める。
 // ボット: 反応の遅れ(既定0.25秒)ごとに、0.5秒先を予測して、敵から一番遠くなる向きを選ぶ。
 import 'dart:math';
@@ -14,7 +15,8 @@ import 'package:italian_brainrot_app/features/game/brainrot_game.dart';
 
 final reaction = double.parse(const String.fromEnvironment('REACTION', defaultValue: '0.25')); // ボットの反応の遅れ(秒)。--dart-define=REACTION=0.6 で変える
 const maxSeconds = 600.0;
-const trials = 8;
+const trials = int.fromEnvironment('TRIALS', defaultValue: 8);
+const playerId = int.fromEnvironment('PLAYER', defaultValue: 0);
 
 class Result {
   final int score;
@@ -30,7 +32,7 @@ Future<Result> play(WidgetTester tester, List<CharacterDef> chars, GameMode mode
   final game = BrainrotGame(
     mode: mode,
     characters: chars,
-    playerId: 0,
+    playerId: playerId,
     session: session,
     onGameOver: (s) => finalScore = s,
     onClear: (s) {
@@ -134,8 +136,9 @@ void main() {
       final scores = results.map((r) => r.score).toList()..sort();
       final avgT = results.map((r) => r.seconds).reduce((a, b) => a + b) / results.length;
       final cleared = results.where((r) => r.cleared).length;
+      final median = scores[scores.length ~/ 2];
       // ignore: avoid_print
-      print('[${mode.name}] 反応${reaction}s のボット $trials回: スコア $scores / 平均 ${avgT.toStringAsFixed(0)}秒 / クリア $cleared回');
+      print('[${mode.name}] PLAYER=$playerId 反応${reaction}s のボット $trials回: 中央値 $median / スコア $scores / 平均 ${avgT.toStringAsFixed(0)}秒 / クリア $cleared回');
       expect(scores.isNotEmpty, true);
     }, timeout: const Timeout(Duration(minutes: 10)));
   }
