@@ -7,6 +7,7 @@ import '../../app/providers.dart';
 import '../../core/ads/reward_ad.dart';
 import '../../core/audio_service.dart';
 import '../../core/constants.dart';
+import '../../core/skill_widgets.dart';
 import '../../core/strings.dart';
 import '../../core/widgets.dart';
 import '../../data/character.dart';
@@ -178,6 +179,8 @@ class _GetDialog extends StatelessWidget {
           const SizedBox(height: 8),
           CharacterView(def: def, size: 160),
           Text(def.name, key: const Key('getName'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.black)),
+          const SizedBox(height: 8),
+          SkillCard(skill: def.skill),
           const SizedBox(height: 12),
           BannerButton(key: const Key('getOk'), text: S.ok, width: 160, onPressed: () => Navigator.pop(context)),
         ]),

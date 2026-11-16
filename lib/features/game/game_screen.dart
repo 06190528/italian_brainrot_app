@@ -7,10 +7,12 @@ import '../../core/ads/banner_ad_widget.dart';
 import '../../core/art.dart';
 import '../../core/ads/reward_ad.dart';
 import '../../core/audio_service.dart';
+import '../../core/skill_widgets.dart';
 import '../../core/strings.dart';
 import '../../data/ranking_service.dart';
 import '../../core/constants.dart';
 import '../../core/widgets.dart';
+import '../../data/skill.dart';
 import 'brainrot_game.dart';
 
 enum _Phase { ready, playing, paused, over, clear }
@@ -166,42 +168,64 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         left: 8,
         child: RoundIconButton(key: const Key('pauseButton'), icon: Icons.pause, onPressed: _pause),
       ),
-      // 元アプリと同じ: かわした数・目標・フィーバーのゲージを、右上のパネルにまとめる
+      // スキル(割れたバリアは、再生までの進み具合を出す)
       Positioned(
-        top: 8,
-        right: 6,
+        top: 62,
+        left: 8,
         child: ListenableBuilder(
-          listenable: Listenable.merge([session.score, session.feverCount, session.fever]),
-          builder: (_, __) {
-            final w = MediaQuery.of(context).size.width;
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(128, 222, 222, 222),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.black, width: 1),
-              ),
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Text('${session.score.value}',
-                    key: const Key('scoreText'),
-                    style: TextStyle(
-                      fontSize: w * 0.05,
-                      fontWeight: FontWeight.bold,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.black,
-                      letterSpacing: 1.0,
-                      shadows: const [Shadow(blurRadius: 1.0, color: Colors.black, offset: Offset(2.0, 2.0))],
-                    )),
-                if (widget.mode == GameMode.normal)
-                  Text(S.goalScore(normalGoalScore),
-                      style: TextStyle(fontSize: w * 0.03, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: Colors.black)),
-                _FeverBar(
-                  value: session.fever.value ? 1 : (session.feverCount.value / game.feverNeeded).clamp(0.0, 1.0),
-                  fever: session.fever.value,
+          listenable: Listenable.merge([session.barrier, session.barrierProgress]),
+          builder: (_, __) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            SkillChip(skill: game.skill),
+            if (game.skill.type == SkillType.barrier)
+              Padding(
+                padding: const EdgeInsets.only(top: 4, left: 6),
+                child: SizedBox(
+                  width: 90,
+                  height: 8,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      key: const Key('barrierBar'),
+                      value: session.barrier.value ? 1 : session.barrierProgress.value,
+                      backgroundColor: Colors.black45,
+                      color: const Color(0xFF29B6F6),
+                    ),
+                  ),
                 ),
-              ]),
-            );
-          },
+              ),
+          ]),
+        ),
+      ),
+      // かわした数・目標・フィーバーのゲージを、上の中央のパネルにまとめる
+      Align(
+        alignment: Alignment.topCenter,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: ListenableBuilder(
+            listenable: Listenable.merge([session.score, session.feverCount, session.fever]),
+            builder: (_, __) {
+              final w = MediaQuery.of(context).size.width;
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.white54, width: 1.5),
+                ),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Text('${session.score.value}',
+                      key: const Key('scoreText'),
+                      style: TextStyle(fontSize: w * 0.07, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1.0)),
+                  if (widget.mode == GameMode.normal)
+                    Text(S.goalScore(normalGoalScore), style: TextStyle(fontSize: w * 0.03, fontWeight: FontWeight.bold, color: Colors.white70)),
+                  _FeverBar(
+                    value: session.fever.value ? 1 : (session.feverCount.value / game.feverNeeded).clamp(0.0, 1.0),
+                    fever: session.fever.value,
+                  ),
+                ]),
+              );
+            },
+          ),
         ),
       ),
       Positioned(
@@ -250,6 +274,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           OutlinedText(S.swipeToMove, fontSize: 28),
           const SizedBox(height: 4),
           Icon(Icons.swipe, size: 64, color: Colors.lightBlueAccent.shade100),
+          const SizedBox(height: 16),
+          SkillCard(key: const Key('readySkill'), skill: game.skill, dark: true),
           const SizedBox(height: 24),
           BannerButton(key: const Key('startButton'), text: S.start, icon: Icons.play_arrow, onPressed: _start),
           const SizedBox(height: 16),
@@ -314,7 +340,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 }
 
-/// 元アプリの GaugeBar + saiazinn.png(フィーバーのゲージ)。
+/// フィーバーのゲージ。
 class _FeverBar extends StatelessWidget {
   final double value;
   final bool fever;
@@ -326,7 +352,7 @@ class _FeverBar extends StatelessWidget {
     final h = w * 0.03;
     return Column(children: [
       if (fever) OutlinedText(S.fever, fontSize: 22, color: Colors.orangeAccent),
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      Row(mainAxisSize: MainAxisSize.min, children: [
         Container(
           key: const Key('feverBar'),
           width: w * 0.3,
