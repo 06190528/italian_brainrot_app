@@ -35,17 +35,17 @@ run node         bash -c 'cd backend/ranking && npm test'
 
 # 独立した重い処理は、バックグラウンドで並列に流す(シミュレータも ios/ も使わない)
 run balance_sim  "$FLUTTER" test --no-pub tool/balance_sim_test.dart &
-if [ "${WITH_BUILD:-0}" = "1" ]; then
-  run build_aab  "$FLUTTER" build appbundle --release --no-pub &
-fi
 
 # シミュレータを使うテストは直列
 for t in flow play ranking; do
   run "drive_$t" "$FLUTTER" drive --no-pub --driver=test_driver/integration_test.dart --target="integration_test/${t}_test.dart" -d "$SIM_UDID"
 done
 
-# iOSのリリースビルドは、ios/ を使うので、drive のあとに流す(AABのビルドとは並列)
+# リリースビルドは、drive(debugビルド)のあとに流す。並列にすると、プラグイン登録ファイル(GeneratedPluginRegistrant.java)を
+# 書き換え合い、AABが integration_test を参照して落ちる(2026-11-16)。AABとiOSは、別のフォルダなので並列でよい。
 if [ "${WITH_BUILD:-0}" = "1" ]; then
+  rm -f android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+  run build_aab  "$FLUTTER" build appbundle --release --no-pub &
   run build_ios  "$FLUTTER" build ios --release --no-codesign --no-pub
 fi
 wait
