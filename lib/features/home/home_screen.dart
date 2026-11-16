@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
 import '../../core/constants.dart';
+import '../../core/skill_widgets.dart';
 import '../../core/strings.dart';
+import '../../data/character.dart';
 import '../../core/widgets.dart';
 import '../gatya/gatya_screen.dart';
 import '../game/brainrot_game.dart';
@@ -18,7 +20,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userDataProvider);
     final chars = ref.watch(charactersProvider);
-    final owned = chars.where((c) => user.owned.contains(c.id)).toList();
+    final ownedCount = chars.where((c) => user.owned.contains(c.id)).length;
     final current = chars[user.current.clamp(0, chars.length - 1)];
 
     return Scaffold(
@@ -29,7 +31,7 @@ class HomeScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
               child: Row(children: [
-                _Chip(S.collected(owned.length, chars.length), key: const Key('collectedText')),
+                _Chip(S.collected(ownedCount, chars.length), key: const Key('collectedText')),
                 const Spacer(),
                 CoinChip(coin: user.coin),
                 const SizedBox(width: 8),
@@ -50,9 +52,10 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5, mainAxisSpacing: 4, crossAxisSpacing: 4),
-                  itemCount: owned.length,
+                  itemCount: chars.length, // 図鑑: 全キャラの枠を並べる(未所持は「?」と、★・スキルの種類だけ見せる)
                   itemBuilder: (_, i) {
-                    final c = owned[i];
+                    final c = chars[i];
+                    if (!user.owned.contains(c.id)) return _LockedSlot(key: Key('slot_${c.id}'), def: c);
                     final selected = c.id == user.current;
                     return GestureDetector(
                       key: Key('char_${c.id}'),
@@ -72,8 +75,20 @@ class HomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             OutlinedText(S.sortie, fontSize: 18),
-            CharacterView(key: const Key('currentCharacter'), def: current, size: 110),
-            OutlinedText(current.name, fontSize: 16, color: Colors.white),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                CharacterView(key: const Key('currentCharacter'), def: current, size: 96),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    OutlinedText(current.name, fontSize: 15, color: Colors.white),
+                    const SizedBox(height: 4),
+                    SkillCard(key: const Key('homeSkill'), skill: current.skill),
+                  ]),
+                ),
+              ]),
+            ),
             Padding(
               padding: const EdgeInsets.all(12),
               child: Row(children: [
@@ -87,6 +102,33 @@ class HomeScreen extends ConsumerWidget {
           ]),
         ),
       ]),
+    );
+  }
+}
+
+/// 図鑑の、まだ持っていないキャラの枠。「?」と、★(レア度)・スキルの種類だけ見せる(キャラの絵は、読み込まない)。
+class _LockedSlot extends StatelessWidget {
+  final CharacterDef def;
+  const _LockedSlot({super.key, required this.def});
+
+  @override
+  Widget build(BuildContext context) {
+    final sk = def.skill;
+    return Container(
+      decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.18), borderRadius: BorderRadius.circular(10)),
+      child: LayoutBuilder(
+        builder: (_, b) => Stack(alignment: Alignment.center, children: [
+          Text('?', style: TextStyle(fontSize: b.maxWidth * 0.5, fontWeight: FontWeight.w900, color: Colors.black38)),
+          Positioned(top: 3, left: 3, child: Icon(skillIcon(sk.type), size: b.maxWidth * 0.22, color: skillColor(sk.type))),
+          Positioned(
+            bottom: 2,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [Icon(Icons.star, size: b.maxWidth * 0.17, color: Colors.amber.shade700), Text('${def.rarity}', style: TextStyle(fontSize: b.maxWidth * 0.17, fontWeight: FontWeight.w900, color: Colors.black54))],
+            ),
+          ),
+        ]),
+      ),
     );
   }
 }

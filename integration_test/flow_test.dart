@@ -22,6 +22,13 @@ void main() {
     await tester.pumpWidget(await buildApp(initialUser: UserData.initial()));
     await tester.pump(const Duration(seconds: 1));
     expect(find.byKey(const Key('homeStart')), findsOneWidget);
+    // 図鑑: 全110枠が並び、持っているのは最初の1体だけ。未所持は「?」の枠
+    expect(find.byKey(const Key('char_0')), findsOneWidget);
+    expect(find.byKey(const Key('slot_1')), findsOneWidget);
+    expect(find.byKey(const Key('char_1')), findsNothing);
+    expect(find.text('図鑑 1 / 110'), findsOneWidget);
+    // 出撃キャラのスキル(最初のキャラはバリア)が、ホームに出る
+    expect(find.descendant(of: find.byKey(const Key('homeSkill')), matching: find.text('バリア')), findsOneWidget);
     await binding.takeScreenshot('01_home');
 
     // ガチャ: 20コイン → 2回回せる
