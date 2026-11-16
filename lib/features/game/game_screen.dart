@@ -9,6 +9,7 @@ import '../../core/ads/reward_ad.dart';
 import '../../core/audio_service.dart';
 import '../../core/skill_widgets.dart';
 import '../../core/strings.dart';
+import '../../data/collection_bonus.dart';
 import '../../data/ranking_service.dart';
 import '../../core/constants.dart';
 import '../../core/widgets.dart';
@@ -64,7 +65,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   void _finish(int score, {required bool clear}) {
     final notifier = ref.read(userDataProvider.notifier);
-    final coins = score ~/ 10;
+    final coins = coinsForScore(score, ref.read(userDataProvider).owned.length);
     notifier.addCoins(coins);
     notifier.addRecord(widget.mode.id, score);
     if (widget.mode.id == rankingMode) {
@@ -325,6 +326,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               const SizedBox(width: 6),
               Text('${S.coinsEarned} +$earnedCoins', style: const TextStyle(fontSize: 18, color: Colors.black)),
             ]),
+            if (collectionBonusPercent(ref.read(userDataProvider).owned.length) > 0)
+              Text(S.collectionBonusApplied(collectionBonusPercent(ref.read(userDataProvider).owned.length)),
+                  key: const Key('bonusApplied'), style: const TextStyle(fontSize: 13, color: Colors.black54)),
             const SizedBox(height: 14),
             if (!clear && !usedContinue) ...[
               BannerButton(key: const Key('continueButton'), text: S.continueByAd, icon: Icons.ondemand_video, width: 260, color: Colors.green, onPressed: _continueByAd),

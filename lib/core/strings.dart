@@ -58,6 +58,9 @@ class S {
   static String get tapToUse => _t('タップで必殺!', 'Tap!');
   static String get adNotReady => _t('広告を準備中です', 'Ad is not ready');
 
+  static String collectionBonusApplied(int p) => _t('図鑑ボーナス コイン+$p%', 'Collection bonus: coins +$p%');
+  static String collectionBonusNext(int remaining, int p) => _t('あと$remaining体で コイン+$p%', '$remaining more for coins +$p%');
+  static String collectionBonusNow(int p) => _t('コイン+$p%', 'Coins +$p%');
   static String get credits => _t('クレジット', 'Credits');
 
   // スキル

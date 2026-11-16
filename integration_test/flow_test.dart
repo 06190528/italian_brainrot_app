@@ -27,6 +27,7 @@ void main() {
     expect(find.byKey(const Key('slot_1')), findsOneWidget);
     expect(find.byKey(const Key('char_1')), findsNothing);
     expect(find.text('図鑑 1 / 110'), findsOneWidget);
+    expect(find.text('あと9体で コイン+10%'), findsWidgets);
     // 出撃キャラのスキル(最初のキャラはバリア)が、ホームに出る
     expect(find.descendant(of: find.byKey(const Key('homeSkill')), matching: find.text('バリア')), findsOneWidget);
     await binding.takeScreenshot('01_home');

@@ -6,6 +6,7 @@ import '../../core/constants.dart';
 import '../../core/skill_widgets.dart';
 import '../../core/strings.dart';
 import '../../data/character.dart';
+import '../../data/collection_bonus.dart';
 import '../../core/widgets.dart';
 import '../gatya/gatya_screen.dart';
 import '../game/brainrot_game.dart';
@@ -31,7 +32,16 @@ class HomeScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
               child: Row(children: [
-                _Chip(S.collected(ownedCount, chars.length), key: const Key('collectedText')),
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  _Chip(S.collected(ownedCount, chars.length), key: const Key('collectedText')),
+                  const SizedBox(height: 2),
+                  Builder(builder: (_) {
+                    final now = collectionBonusPercent(ownedCount);
+                    final next = nextCollectionBonus(ownedCount);
+                    final parts = [if (now > 0) S.collectionBonusNow(now), if (next != null) S.collectionBonusNext(next.remaining, next.percent)];
+                    return OutlinedText(parts.join(' / '), key: const Key('bonusText'), fontSize: 12, color: Colors.white);
+                  }),
+                ]),
                 const Spacer(),
                 CoinChip(coin: user.coin),
                 const SizedBox(width: 8),
