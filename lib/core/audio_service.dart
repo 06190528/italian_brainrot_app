@@ -42,6 +42,7 @@ class AudioService {
   Future<void> clear() => se('game_clear.mp3');
   Future<void> gatya() => se('gatya.mp3');
   Future<void> getCharacter() => se('get_character.mp3');
+  Future<void> getRare() => se('get_rare.mp3'); // ★4・5が出た時
   Future<void> coin() => se('get_coin.mp3');
   Future<void> item() => se('get_item.mp3');
   Future<void> special() => se('special_move.mp3');

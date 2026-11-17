@@ -235,7 +235,8 @@
 | sound/se/explosion.ogg | https://kenney.nl/assets/sci-fi-sounds | Kenney Vleugels (Kenney.nl) | CC0 | 2026-11-08 | 元ファイル Audio/lowFrequency_explosion_000.ogg。2.00s。44.1kHz ステレオ。最大 -0.9dB、クリップなし |
 | sound/se/game_clear.ogg | https://kenney.nl/assets/music-jingles | Kenney Vleugels (Kenney.nl) | CC0 | 2026-11-08 | 元ファイル Audio/Steel jingles/jingles_STEEL07.ogg。1.55s。最大 -2.6dB。クリア用のジングル(短め) |
 | sound/se/gatya.ogg | https://kenney.nl/assets/interface-sounds | Kenney Vleugels (Kenney.nl) | CC0 | 2026-11-08 | 元ファイル Audio/scroll_001.ogg。1.00s。回転の音として使う候補(単発。連続回転にするなら複数を並べる) |
-| sound/se/get_character.ogg | https://kenney.nl/assets/music-jingles | Kenney Vleugels (Kenney.nl) | CC0 | 2026-11-08 | 元ファイル Audio/Sax jingles/jingles_SAX07.ogg。1.74s。最大 -10.5dB と小さめ(再生時の音量調整が必要) |
+| sound/se/get_character.wav | 自作(`tools/make_gatya_sounds.py`で合成) | 自作 | 自作(権利の問題なし) | 2026-11-17 | ベル系の音のアルペジオ→和音。1.70s。旧版(Kenney jingles_SAX07)は `get_character_prev.ogg` |
+| sound/se/get_rare.wav | 自作(`tools/make_gatya_sounds.py`で合成) | 自作 | 自作(権利の問題なし) | 2026-11-17 | ★4・5用。上昇する音→高い和音。2.80s |
 | sound/se/get_coin.ogg | https://kenney.nl/assets/rpg-audio | Kenney Vleugels (Kenney.nl) | CC0 | 2026-11-08 | 元ファイル Audio/handleCoins.ogg。0.85s。最大 0.0dB で、0dBFS のサンプルが7個あり軽いクリップの可能性 |
 | sound/se/get_item.ogg | https://kenney.nl/assets/digital-audio | Kenney Vleugels (Kenney.nl) | CC0 | 2026-11-08 | 元ファイル Audio/powerUp3.ogg。1.15s。音が区切れる(アルペジオ状)。最大 -2.1dB |
 | sound/se/special_move.ogg | https://kenney.nl/assets/digital-audio | Kenney Vleugels (Kenney.nl) | CC0 | 2026-11-08 | 元ファイル Audio/zapTwoTone.ogg。1.31s。最大 -0.6dB |
