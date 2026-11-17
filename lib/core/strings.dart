@@ -27,6 +27,13 @@ class S {
   static String get watchAdForCoins => _t('広告を見てコインをもらう', 'Watch ad for coins');
   static String get newCharacter => _t('NEW!', 'NEW!');
   static String get duplicate => _t('ダブり(+5コイン)', 'Duplicate (+5 coins)');
+  static String rarityName(int r) => switch (r) {
+        1 => _t('ノーマル', 'Common'),
+        2 => _t('レア', 'Rare'),
+        3 => _t('スーパーレア', 'Super Rare'),
+        4 => _t('ウルトラレア', 'Ultra Rare'),
+        _ => _t('レジェンド', 'Legendary'),
+      };
   static String get ok => _t('OK', 'OK');
   static String get yes => _t('はい', 'Yes');
   static String get no => _t('いいえ', 'No');

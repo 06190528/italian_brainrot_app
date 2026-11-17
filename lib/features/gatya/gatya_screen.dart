@@ -7,11 +7,10 @@ import '../../app/providers.dart';
 import '../../core/ads/reward_ad.dart';
 import '../../core/audio_service.dart';
 import '../../core/constants.dart';
-import '../../core/skill_widgets.dart';
 import '../../core/strings.dart';
 import '../../core/widgets.dart';
-import '../../data/character.dart';
 import '../../data/gacha.dart';
+import 'get_dialog.dart';
 
 class GatyaScreen extends ConsumerStatefulWidget {
   const GatyaScreen({super.key});
@@ -41,10 +40,14 @@ class _GatyaScreenState extends ConsumerState<GatyaScreen> with SingleTickerProv
     final chars = ref.read(charactersProvider);
     final got = drawCharacter(chars, _rng);
     final isNew = notifier.unlock(got.id);
-    AudioService.instance.getCharacter();
+    if (got.rarity >= 4) {
+      AudioService.instance.getRare();
+    } else {
+      AudioService.instance.getCharacter();
+    }
     if (!mounted) return;
     setState(() => _spinning = false);
-    await showDialog(context: context, builder: (_) => _GetDialog(def: got, isNew: isNew));
+    await showDialog(context: context, builder: (_) => GetDialog(def: got, isNew: isNew));
     if (mounted) _shake.value = 0; // 待機のコマに戻す
   }
 
@@ -162,30 +165,4 @@ class _GatyaPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_GatyaPainter old) => old.t != t;
-}
-
-class _GetDialog extends StatelessWidget {
-  final CharacterDef def;
-  final bool isNew;
-  const _GetDialog({required this.def, required this.isNew});
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          OutlinedText(isNew ? S.newCharacter : S.duplicate, key: const Key('getTitle'), fontSize: 26),
-          const SizedBox(height: 8),
-          CharacterView(def: def, size: 160),
-          Text(def.name, key: const Key('getName'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.black)),
-          const SizedBox(height: 8),
-          SkillCard(skill: def.skill),
-          const SizedBox(height: 12),
-          BannerButton(key: const Key('getOk'), text: S.ok, width: 160, onPressed: () => Navigator.pop(context)),
-        ]),
-      ),
-    );
-  }
 }
