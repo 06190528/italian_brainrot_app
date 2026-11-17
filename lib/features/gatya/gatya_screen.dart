@@ -11,6 +11,7 @@ import '../../core/skill_widgets.dart';
 import '../../core/strings.dart';
 import '../../core/widgets.dart';
 import '../../data/character.dart';
+import '../../data/gacha.dart';
 
 class GatyaScreen extends ConsumerStatefulWidget {
   const GatyaScreen({super.key});
@@ -38,7 +39,7 @@ class _GatyaScreenState extends ConsumerState<GatyaScreen> with SingleTickerProv
     AudioService.instance.gatya();
     await _shake.forward(from: 0);
     final chars = ref.read(charactersProvider);
-    final got = chars[_rng.nextInt(chars.length)];
+    final got = drawCharacter(chars, _rng);
     final isNew = notifier.unlock(got.id);
     AudioService.instance.getCharacter();
     if (!mounted) return;
