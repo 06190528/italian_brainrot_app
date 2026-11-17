@@ -1,5 +1,9 @@
 # CLAUDE.md (italian_brainrot_app)
 
+## 自律開発
+
+- ユーザーの介入なしで進める時は、`docs/autonomous_dev_guide.md` に従う(決める前の批判・情報の確からしさの評価・事前調査の方法・確認が必要な操作の線引き)。
+
 ## タスク管理(Notion)
 
 このプロジェクトのNotionページとタスク表は作成済み。
