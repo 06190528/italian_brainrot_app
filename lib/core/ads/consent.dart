@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 /// 広告の同意(UMP)と初期化。同意が取れてから `MobileAds.initialize()` する。
-/// ストア申告(個人に合わせない広告・子ども向けではない)と一致させる:
-/// 広告リクエストは、すべて [adRequest](非個人化)を使う。
+/// 対象年齢に13歳未満を含む(ファミリー ポリシー)ため、全ユーザーを子供として扱う:
+/// 子供向け扱い(TFCD)・同意年齢未満・広告の格付けG。広告リクエストは、すべて [adRequest](非個人化)を使う。
 class AdsConsent {
   static final _ready = Completer<bool>();
 
@@ -19,7 +19,10 @@ class AdsConsent {
       await _requestConsent();
       if (await ConsentInformation.instance.canRequestAds()) {
         await MobileAds.instance.updateRequestConfiguration(
-            RequestConfiguration(tagForChildDirectedTreatment: TagForChildDirectedTreatment.no));
+            RequestConfiguration(
+                tagForChildDirectedTreatment: TagForChildDirectedTreatment.yes,
+                tagForUnderAgeOfConsent: TagForUnderAgeOfConsent.yes,
+                maxAdContentRating: MaxAdContentRating.g));
         await MobileAds.instance.initialize();
         ok = true;
       }
@@ -32,7 +35,7 @@ class AdsConsent {
   static Future<void> _requestConsent() async {
     final info = ConsentInformation.instance;
     final updated = Completer<void>();
-    info.requestConsentInfoUpdate(ConsentRequestParameters(), () => updated.complete(), (_) => updated.complete());
+    info.requestConsentInfoUpdate(ConsentRequestParameters(tagForUnderAgeOfConsent: true), () => updated.complete(), (_) => updated.complete());
     await updated.future.timeout(const Duration(seconds: 10), onTimeout: () {});
     final shown = Completer<void>();
     ConsentForm.loadAndShowConsentFormIfRequired((_) => shown.complete());
