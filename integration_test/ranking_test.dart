@@ -42,7 +42,8 @@ void main() {
     // 110 より上は6人(200,185,170,155,140,125)→ 7位。Rival7 も 110 なので同点の7位
     expect(find.byKey(const Key('myRow')), findsOneWidget);
     expect(find.text('あなたの順位: 7位 / 13人'), findsOneWidget);
-    expect(find.text('Rival1'), findsOneWidget);
+    expect(find.text('Player r000'), findsOneWidget, reason: '名前は自動生成(タグから)');
+    expect(find.text('Rival1'), findsNothing, reason: 'JSONの名前は表示しない');
     expect(find.byKey(const Key('rankingUpdated')), findsOneWidget);
     expect(fake.submitted.length, 1, reason: '未送信のベストを送る');
     expect(jsonDecode(fake.submitted.single)['fields']['score']['integerValue'], '110');

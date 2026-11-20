@@ -64,7 +64,7 @@ class _RankingScreenState extends ConsumerState<RankingScreen> {
                     }
                     final data = snap.data ?? RankingData.empty;
                     final board = composeBoard(data,
-                        myTag: user.installId.substring(28), myName: user.name, myScore: myBest);
+                        myTag: user.installId.substring(28), myName: anonName(user.installId.substring(28)), myScore: myBest);
                     return _body(data, board, myBest);
                   },
                 ),

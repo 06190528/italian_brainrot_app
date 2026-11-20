@@ -26,7 +26,7 @@ export function toEntries(docs) {
   return docs
     .filter((d) => Number.isInteger(d.score) && d.score > 0)
     .sort((a, b) => b.score - a.score)
-    .map((d) => ({ name: cleanName(d.name), score: d.score, tag: String(d.id).slice(-4) }));
+    .map((d) => ({ name: `Player ${String(d.id).slice(-4)}`, score: d.score, tag: String(d.id).slice(-4) }));
 }
 
 /**

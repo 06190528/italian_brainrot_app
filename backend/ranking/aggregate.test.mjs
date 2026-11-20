@@ -9,7 +9,7 @@ test('toEntries: 降順・0点除外・tagはID末尾4桁', () => {
     { id: 'cccc3333', name: 'C', score: 9 },
     { id: 'dddd4444', name: 'D', score: 'x' },
   ]);
-  assert.deepEqual(e.map((x) => [x.name, x.score, x.tag]), [['C', 9, '3333'], ['A', 5, '1111']]);
+  assert.deepEqual(e.map((x) => [x.name, x.score, x.tag]), [['Player 3333', 9, '3333'], ['Player 1111', 5, '1111']]);
 });
 
 test('cleanName: 制御文字を除き、12文字まで、空ならPlayer', () => {

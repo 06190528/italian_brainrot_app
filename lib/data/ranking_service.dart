@@ -34,8 +34,11 @@ class RankingData {
         updatedAt: j['updatedAt'] == null ? null : DateTime.tryParse(j['updatedAt'] as String)?.toLocal(),
         total: (j['total'] ?? 0) as int,
         top: ((j['top'] ?? []) as List)
-            .map((e) => RankingEntry(
-                (e['name'] ?? '') as String, (e['score'] ?? 0) as int, (e['tag'] ?? '') as String))
+            .map((e) {
+              // 名前は、サーバーのJSONの値を使わない(古い版が送った自由入力の名前を、表示しない)
+              final tag = (e['tag'] ?? '') as String;
+              return RankingEntry(anonName(tag), (e['score'] ?? 0) as int, tag);
+            })
             .toList(),
         scores: j['scores'] == null ? null : (j['scores'] as List).cast<int>(),
         cum: j['cum'] == null
@@ -162,6 +165,9 @@ class HttpRankingTransport implements RankingTransport {
   }
 }
 
+/// ランキングの表示名。ユーザーの自由入力は使わず、端末のタグ(IDの末尾4桁)から作る(子供の個人情報を公開しない)。
+String anonName(String tag) => 'Player $tag';
+
 class RankingService {
   final RankingTransport transport;
   final String projectId;
@@ -215,7 +221,7 @@ Future<void> submitPendingRanking({
 }) async {
   final best = user.bestScore(rankingMode);
   if (best <= 0 || best <= user.submittedBest) return;
-  if (await service.submit(user.installId, user.name, best)) {
+  if (await service.submit(user.installId, anonName(user.installId.substring(28)), best)) {
     notifier.markSubmitted(best);
   }
 }

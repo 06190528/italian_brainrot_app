@@ -103,6 +103,16 @@ void main() {
       expect(jsonDecode(body)['fields']['name']['stringValue'], 'Taro');
     });
 
+    test('名前は、自由入力ではなくタグから作る(JSONの名前は表示しない)', () async {
+      expect(anonName('ab12'), 'Player ab12');
+      final d = RankingData.fromJson({
+        'top': [
+          {'name': 'やまだたろう', 'score': 10, 'tag': 'aaaa'}
+        ]
+      });
+      expect(d.top.single.name, 'Player aaaa');
+    });
+
     test('submit: 通信失敗は false、ルール拒否(403)は送信済み扱い', () async {
       final t = FakeTransport()..patchCode = -1;
       final s = RankingService(t, jsonUrl: 'https://x/r.json');
