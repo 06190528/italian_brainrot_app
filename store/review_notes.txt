@@ -9,8 +9,10 @@ How to see it quickly:
 
 How to play: swipe to move the character and dodge the enemies crossing the screen. Collect coins to open the gacha (coins only; there are no in-app purchases).
 
-Ads: the app shows Google AdMob banner and rewarded ads (non-personalized ads only; no App Tracking Transparency). In the EEA/UK, a consent form (Google UMP) is shown on first launch.
+Version 1.0.1 changes: the app can be used by children, so all users are now treated as children. Ads (Google AdMob banner and rewarded) are requested with child-directed treatment (tagForChildDirectedTreatment = yes, tagForUnderAgeOfConsent = yes, max ad content rating G), non-personalized only, and there is no App Tracking Transparency prompt. The ranking display name is no longer typed by the user: it is generated from the install ID (e.g. "Player ab12"), so the app contains no user-generated content.
 
-Ranking: in Hard mode the app sends the player's display name (max 12 characters, default "Player"), the score, and a random per-install ID to Firebase Firestore. The display name is shown to other players on the ranking screen. No other personal data is collected.
+Ads: Google AdMob banner (bottom of game screens) and rewarded ads (to earn coins or revive).
+
+Ranking: in Hard mode the app sends the score, the auto-generated name and a random per-install ID to Firebase Firestore. The name is shown to other players on the ranking screen. No other personal data is collected.
 
 Characters are fan-made meme characters, declared as third-party content in App Store Connect. We will promptly remove any asset on request from the rights holder.
