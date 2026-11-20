@@ -38,7 +38,7 @@ run balance_sim  "$FLUTTER" test --no-pub tool/balance_sim_test.dart &
 
 # シミュレータを使うテストは直列
 for t in flow play ranking; do
-  run "drive_$t" "$FLUTTER" drive --no-pub --driver=test_driver/integration_test.dart --target="integration_test/${t}_test.dart" -d "$SIM_UDID"
+  run "drive_$t" "$FLUTTER" drive --no-pub --dart-define=MUTE_AUDIO=true --driver=test_driver/integration_test.dart --target="integration_test/${t}_test.dart" -d "$SIM_UDID"
 done
 
 # リリースビルドは、drive(debugビルド)のあとに流す。並列にすると、プラグイン登録ファイル(GeneratedPluginRegistrant.java)を

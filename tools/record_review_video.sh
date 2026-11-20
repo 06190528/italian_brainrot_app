@@ -11,7 +11,7 @@ SIM_UDID="${SIM_UDID:-4C81E0DD-3457-4012-87C3-71B18916516B}"
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 OUT=store/review_demo; mkdir -p "$OUT"; : > "$OUT/flow.log"; rm -f "$OUT/recording.mp4" "$OUT/recording_attach.mp4"
 xcrun simctl boot "$SIM_UDID" 2>/dev/null || true
-"$FLUTTER" drive --no-pub --driver=test_driver/integration_test.dart --target="integration_test/${NAME}_test.dart" -d "$SIM_UDID" > "$OUT/flow.log" 2>&1 &
+"$FLUTTER" drive --no-pub --dart-define=MUTE_AUDIO=true --driver=test_driver/integration_test.dart --target="integration_test/${NAME}_test.dart" -d "$SIM_UDID" > "$OUT/flow.log" 2>&1 &
 DRIVE=$!
 until grep -q "Isolate found" "$OUT/flow.log" 2>/dev/null || ! kill -0 $DRIVE 2>/dev/null; do sleep 0.3; done
 xcrun simctl io "$SIM_UDID" recordVideo --codec=h264 --force "$OUT/recording.mp4" >/dev/null 2>&1 &

@@ -5,7 +5,12 @@ class AudioService {
   AudioService._();
   static final AudioService instance = AudioService._();
 
-  bool enabled = true;
+  /// 開発中の音を消す: `flutter run/drive --dart-define=MUTE_AUDIO=true`。リリースビルドでは定義しない。
+  static const _muted = bool.fromEnvironment('MUTE_AUDIO');
+
+  bool _enabled = true;
+  bool get enabled => _enabled && !_muted;
+  set enabled(bool v) => _enabled = v;
   bool _initialized = false;
 
   Future<void> init() async {
