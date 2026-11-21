@@ -12,7 +12,7 @@
    - 製品版の公開を確認(Playの掲載が v4 に更新されたか)。
    - Androidの Verify app が押されたか: `tail ~/pj/tools/chrome-hub/state/admob_verify_watch.log`、`python -m sites.admob status イタリアン`。
    - 否承認なら、`REJECTION_PLAYBOOK.md` を見て、理由を `docs/` に書く。
-2. **ランキング集計の名前**: `gh workflow run ranking.yml`(または03:17 JST の定時)で再生成し、`ranking-data` ブランチの `ranking.json` の名前が `Player xxxx` になったか確認する(実行は、ユーザーの許可を取ってから。前回、聞いたまま未回答)。
+2. ~~ランキング集計の名前~~ → **11/21 13:37 に `gh workflow run ranking.yml` で再生成済み。`ranking.json` の名前は全件 `Player xxxx`**。新しいタスク(Notion・Pending): アプリ内のニックネームをランキングに表示してよいか再検討する。
 5. **AdMobの承認状況**: 両OSとも「要審査/審査中・広告配信を制限」。広告リクエストが出てから数日。2〜3日変わらなければ、AdMobのポリシーセンターへ問い合わせる。
 3. **iOS 1.0.1 の配信後の確認**: `curl "https://itunes.apple.com/lookup?id=6832495202&country=jp"` が `version: 1.0.1` か。
 4. 古いFirestoreの名前は「消さない」と決定済み。

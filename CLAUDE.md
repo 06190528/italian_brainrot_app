@@ -4,7 +4,7 @@
 
 - **`docs/handoff_unresolved_2026-11-21.md` の冒頭**(「今どうなっているか」「次の作業」)を、作業の前に読む。リリース作業の全体の経緯は `docs/release_handoff.md`。
 - 要点(2026-11-21 13:30): Playは7件を審査送信済み(審査待ち。通ると製品版がv4に更新される)。iOS 1.0.1は配信中。AdMobのAndroid Verify appは、launchdが自動で押す。
-- **未了で、ユーザーの許可待ちの作業**: ランキング集計の再生成(`gh workflow run ranking.yml` → `ranking-data` ブランチの `ranking.json` の名前が `Player xxxx` になったか確認)。実行してよいか、ユーザーに聞く。
+- ランキング集計の再生成は、11/21 13:37 に実行済み(`ranking-data` の `ranking.json` は、全件が `Player xxxx`)。
 - 状況が変わったら、この節と引き継ぎ書の冒頭を更新する(次のチャットに伝わるように)。
 
 ## 自律開発
