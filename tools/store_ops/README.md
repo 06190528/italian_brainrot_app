@@ -14,3 +14,4 @@
 | `asc_priv2.py` | ASCのアプリのプライバシーに、データタイプ(`NEW`)を足して設定。**次回は `appstore_privacy.py` に取り込むとよい** | **書く** |
 | `admob_read.py` | AdMobの任意のページの本文を表示(例: アプリ設定 `https://admob.google.com/v2/apps/<数字>/settings`) | 読むだけ |
 | `alpha_v4_from_library.py` | Alphaの未公開リリース(prepare画面)に、ライブラリの versionCode 4 を追加して保存(`alpha_v4.py` が「バージョン コード 4 はすでに使用されています」で上げられない時用。引数=リリース番号) | **書く** |
+| `release_v4_from_library.py` | 指定トラック(internal-testing / production など)に、ライブラリの vc4 で新しいリリースを作って保存(`--yes` で保存。内部テストは最後に別途「保存して公開」が要る) | **書く** |
