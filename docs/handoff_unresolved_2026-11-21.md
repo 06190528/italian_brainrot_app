@@ -1,3 +1,31 @@
+# 引き継ぎ: 最新の状況と次の作業(2026-11-21 13:30 更新。**まずここを読む**)
+
+## 今どうなっているか
+- **Play**: 送信ブロックは解決。原因は、内部テスト(vc3)・製品版(vc1)に、AD_ID付きの古い版が残っていたこと。両トラックを v4(vc4)で置き換え、**7件(製品版1.0.0(4)・Alpha 1.0.0(4)ほか)を13:15ごろ審査へ送信済み**(クイックチェック約14分→審査。通常7日以内)。内部テストは v4 を公開済み(13:08)。製品版は、通ると**公開中のアプリが v4 に更新される**(完全公開)。
+- **iOS 1.0.1**: 「Ready for Distribution」(配信中。メール受信済み)。
+- **AdMob**: iOSは Verify app 済み(確認済み)で、承認状況は「審査中」。Androidは Play 掲載に紐づけ済み(パッケージ名の完全一致で選ぶよう `link_store` を直した)。**Androidの Verify app は、自動で押す仕組みを入れた**(launchd `com.kitano.admob-verify-watch` が3時間おきに `admob_verify_watch.py` を実行。ログ: `~/pj/tools/chrome-hub/state/admob_verify_watch.log`。押せたら記録 `state/admob_verify_watch.json`)。
+- **push**: アプリのリポジトリは 11/21 に `origin/master` へ push 済み(`2079937`まで)。その後の docs のコミットは未push。
+
+## 次の作業(上から)
+1. **Playの審査結果を待つ**: `cd ~/pj/tools/chrome-hub && HUB_OWN_TAB=1 .venv/bin/python closed_testing.py italianbrainrot overview`(「審査中の変更」→公開済み)。通ったら:
+   - `prelaunch_report.py italianbrainrot` でリリース前レポート(クラッシュの原因)を読む。
+   - 製品版の公開を確認(Playの掲載が v4 に更新されたか)。
+   - Androidの Verify app が押されたか: `tail ~/pj/tools/chrome-hub/state/admob_verify_watch.log`、`python -m sites.admob status イタリアン`。
+   - 否承認なら、`REJECTION_PLAYBOOK.md` を見て、理由を `docs/` に書く。
+2. **ランキング集計の名前**: `gh workflow run ranking.yml`(または03:17 JST の定時)で再生成し、`ranking-data` ブランチの `ranking.json` の名前が `Player xxxx` になったか確認する(実行は、ユーザーの許可を取ってから。前回、聞いたまま未回答)。
+5. **AdMobの承認状況**: 両OSとも「要審査/審査中・広告配信を制限」。広告リクエストが出てから数日。2〜3日変わらなければ、AdMobのポリシーセンターへ問い合わせる。
+3. **iOS 1.0.1 の配信後の確認**: `curl "https://itunes.apple.com/lookup?id=6832495202&country=jp"` が `version: 1.0.1` か。
+4. 古いFirestoreの名前は「消さない」と決定済み。
+
+## 今回(11/21)で分かったこと・道具
+- Playの「広告IDの申告が不完全」は、**Alpha以外のトラックの古い版**が原因だった。全トラックは `.../releases/overview` で見る。メモリ: `play-publish-overview-adid-block`。
+- サポートチケット: `chrome-hub/play_support_ticket.py`(入力まで自動。`--send` で送信を押す→まず「AIによる提案」が出て、チケットはまだ作られない。作るなら `--create-ticket`)。送信後の録画・通信監視・最前面表示つき。今回はチケットを作っていない。
+- 道具: `tools/store_ops/release_v4_from_library.py <track> --yes`(ライブラリのvc4で新リリースを保存。内部テストは最後に「保存して公開」が別に要る)、`alpha_v4_from_library.py`。バージョンコード4はライブラリにあり、再アップロードは不可。
+- 注意: Playの下書きの破棄・申告の一時保存は、自動の安全確認で止まることがある(迂回しない。ユーザーに許可を取る)。chrome-hubの共有ブラウザは、他のエージェントも使う。
+
+---
+以下は、解決前の記録(経緯)。
+
 # 引き継ぎ: 未解決の3件を解決する(2026-11-21 時点)
 
 新しいチャットは、まずこのファイルを読む。次に `docs/release_handoff.md` の冒頭、メモリ(`~/.claude/projects/-Users-kitano-pj-italian-brainrot-app/memory/`。特に `kids-ads-families-policy`・`play-publish-overview-adid-block`・`asc-update-flow-gotchas`・`chrome-hub-shared-browser`・`dev-process-lessons`)、`~/pj/tools/chrome-hub/REJECTION_PLAYBOOK.md` の §6・§7。
