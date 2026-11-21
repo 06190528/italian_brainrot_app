@@ -13,3 +13,4 @@
 | `asc_age.py` | ASCの年齢制限の質問票を最後まで入力して、止まる質問を表示(保存せずキャンセル) | 読むだけ |
 | `asc_priv2.py` | ASCのアプリのプライバシーに、データタイプ(`NEW`)を足して設定。**次回は `appstore_privacy.py` に取り込むとよい** | **書く** |
 | `admob_read.py` | AdMobの任意のページの本文を表示(例: アプリ設定 `https://admob.google.com/v2/apps/<数字>/settings`) | 読むだけ |
+| `alpha_v4_from_library.py` | Alphaの未公開リリース(prepare画面)に、ライブラリの versionCode 4 を追加して保存(`alpha_v4.py` が「バージョン コード 4 はすでに使用されています」で上げられない時用。引数=リリース番号) | **書く** |
