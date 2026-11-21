@@ -1,5 +1,12 @@
 # CLAUDE.md (italian_brainrot_app)
 
+## 新しいチャットは、最初にこれを読む(最新の状況と次の作業)
+
+- **`docs/handoff_unresolved_2026-11-21.md` の冒頭**(「今どうなっているか」「次の作業」)を、作業の前に読む。リリース作業の全体の経緯は `docs/release_handoff.md`。
+- 要点(2026-11-21 13:30): Playは7件を審査送信済み(審査待ち。通ると製品版がv4に更新される)。iOS 1.0.1は配信中。AdMobのAndroid Verify appは、launchdが自動で押す。
+- **未了で、ユーザーの許可待ちの作業**: ランキング集計の再生成(`gh workflow run ranking.yml` → `ranking-data` ブランチの `ranking.json` の名前が `Player xxxx` になったか確認)。実行してよいか、ユーザーに聞く。
+- 状況が変わったら、この節と引き継ぎ書の冒頭を更新する(次のチャットに伝わるように)。
+
 ## 自律開発
 
 - ユーザーの介入なしで進める時は、`docs/autonomous_dev_guide.md` に従う(決める前の批判・情報の確からしさの評価・事前調査の方法・確認が必要な操作の線引き)。
