@@ -4,6 +4,7 @@
 - **Play**: 送信ブロックは解決。原因は、内部テスト(vc3)・製品版(vc1)に、AD_ID付きの古い版が残っていたこと。両トラックを v4(vc4)で置き換え、**7件(製品版1.0.0(4)・Alpha 1.0.0(4)ほか)を13:15ごろ審査へ送信済み**(クイックチェック約14分→審査。通常7日以内)。内部テストは v4 を公開済み(13:08)。製品版は、通ると**公開中のアプリが v4 に更新される**(完全公開)。
 - **iOS 1.0.1**: 「Ready for Distribution」(配信中。メール受信済み)。
 - **AdMob**: iOSは Verify app 済み(確認済み)で、承認状況は「審査中」。Androidは Play 掲載に紐づけ済み(パッケージ名の完全一致で選ぶよう `link_store` を直した)。**Androidの Verify app は、自動で押す仕組みを入れた**(launchd `com.kitano.admob-verify-watch` が3時間おきに `admob_verify_watch.py` を実行。ログ: `~/pj/tools/chrome-hub/state/admob_verify_watch.log`。押せたら記録 `state/admob_verify_watch.json`)。
+- **AdMob(11/23 更新)**: iOSは「準備完了」(要審査は解消)。Androidだけ「要審査」。**原因は、Play「ストアの設定」の連絡先の「ウェブサイト」が空だったこと**(AdMobはここからapp-ads.txtを探す)。11/23に `https://06190528.github.io` を設定・公開済み。反映・クロールに最大24時間。launchdの自動verifyが押し直す。翌日以降も「要審査」なら `python -m sites.admob status イタリアン` で確認。
 - **push**: アプリのリポジトリは 11/21 に `origin/master` へ push 済み(`2079937`まで)。その後の docs のコミットは未push。
 
 ## 次の作業(上から)
