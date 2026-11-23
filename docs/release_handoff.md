@@ -94,7 +94,7 @@
 1. `WITH_BUILD=1 tools/release_gate.sh`(AAB・iOSビルドも含む)が全部通る。通ったコミットのSHAから、ビルドする。
 2. **まとめて確認(1回)**。下の「5」の値を、全部並べて、ユーザーに見せる。
 3. 返答のあと、確認なしで、`bundle_id → asc_app → play_app → build → listing → declarations → submit` を実行。ゴール = **両ストアで審査提出まで**(公開は、審査後)。
-4. 公開後: `admob link`(iOSは、App StoreのURL形式)・`admob_verify`。
+4. 公開後: `admob link`(iOSは、App StoreのURL形式)・`admob_verify`。**広告ありは、Play「ストアの設定」のウェブサイトとASCのマーケティングURLに、app-ads.txtを置いたサイトを必ず設定する**(spec の `listing.marketing_url`。`release.py` の `listing`・`admob_verify` が自動で設定。空だとAndroidが「要審査」のまま)。
 
 ## 4. 環境メモ(つまずき)
 - Flutter は **`~/fvm/versions/3.35.4/bin/flutter` を直接**使う(`.fvm` は追跡から外した。`fvm flutter` は使わない)。3.24.5 では、flame が合わずビルドできない。
