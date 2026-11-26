@@ -3,7 +3,7 @@ description: "Italian brainrot gacha & dodge game."
 
 publish_to: "none"
 
-version: 1.0.1+4
+version: 1.0.2+5
 
 environment:
   sdk: ">=3.3.2 <4.0.0"
