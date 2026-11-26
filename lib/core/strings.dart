@@ -63,6 +63,8 @@ class S {
   static String collected(int n, int total) => _t('図鑑 $n / $total', 'Collected $n / $total');
   static String get fever => _t('フィーバー!', 'FEVER!');
   static String get tapToUse => _t('タップで必殺!', 'Tap!');
+  static String get adLoading => _t('広告を読み込み中…', 'Loading ad…');
+  static String get cancel => _t('キャンセル', 'Cancel');
   static String get adNotReady => _t('広告を準備中です', 'Ad is not ready');
 
   static String collectionBonusApplied(int p) => _t('図鑑ボーナス コイン+$p%', 'Collection bonus: coins +$p%');

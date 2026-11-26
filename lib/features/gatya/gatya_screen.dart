@@ -52,8 +52,8 @@ class _GatyaScreenState extends ConsumerState<GatyaScreen> with SingleTickerProv
   }
 
   Future<void> _watchAd() async {
-    final ok = await RewardAd.show(() => ref.read(userDataProvider.notifier).addCoins(adRewardCoins));
-    if (!ok && mounted) {
+    final ok = await RewardAd.showWithLoading(context, () => ref.read(userDataProvider.notifier).addCoins(adRewardCoins));
+    if (ok == false && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.adNotReady)));
     }
   }

@@ -46,6 +46,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       onGameOver: (s) => _finish(s, clear: false),
       onClear: (s) => _finish(s, clear: true),
     );
+    RewardAd.preload(); // コンティニュー用の広告を、先に読み込んでおく
     session.fever.addListener(() {
       if (mounted) setState(() {});
     });
@@ -110,7 +111,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       ),
     );
     if (ok != true || !mounted) return;
-    final shown = await RewardAd.show(() {
+    final shown = await RewardAd.showWithLoading(context, () {
       usedContinue = true;
       // 前回のゲームオーバーで貰ったコインを戻す(続きを遊ぶので、終了時に改めて貰う)
       ref.read(userDataProvider.notifier).spendCoins(earnedCoins.clamp(0, ref.read(userDataProvider).coin));
@@ -118,7 +119,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       AudioService.instance.playBgm(AudioService.bgmMain);
       if (mounted) setState(() => phase = _Phase.playing);
     });
-    if (!shown && mounted) {
+    if (shown == false && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.adNotReady)));
     }
   }
